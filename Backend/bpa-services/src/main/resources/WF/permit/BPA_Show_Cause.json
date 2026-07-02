@@ -1,0 +1,155 @@
+{
+  "RequestInfo": {
+    "apiId": "Rainmaker",
+    "action": "",
+    "did": 1,
+    "key": "",
+    "msgId": "20170310130900|en_IN",
+    "requesterId": "",
+    "ts": 1513579888683,
+    "ver": ".01",
+    "authToken": "96f0d866-0cb8-4f8e-bfe3-8552d622d954"
+  },
+  "BusinessServices": [
+    {
+      "tenantId": "od",
+      "businessService": "BPA_SCN",
+      "business": "bpa-services",
+      "businessServiceSla": 5184000000,
+      "states": [
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": null,
+          "applicationStatus": null,
+          "docUploadRequired": false,
+          "isStartState": true,
+          "isTerminateState": false,
+          "isStateUpdatable": true,
+          "actions": [
+            {
+              "tenantId": "od",
+              "action": "SHOW_CAUSE",
+              "nextState": "PENDING_SHOW_CAUSE_REPLY",
+              "roles": [
+                "BPA1_APPROVER",
+                "BPA2_APPROVER",
+                "BPA3_APPROVER"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "PENDING_SHOW_CAUSE_REPLY",
+          "applicationStatus": "SHOW_CAUSE_ISSUED",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_SHOW_CAUSE_REPLY",
+              "action": "REPLY",
+              "nextState": "PENDING_DEPT_VERIFICATION",
+              "roles": [
+                "BPA_ARC_APPROVER","BPA_ARCHITECT","CITIZEN"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "PENDING_DEPT_VERIFICATION",
+          "applicationStatus": "SHOW_CAUSE_REPLY_VERIFICATION_PENDING",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_DEPT_VERIFICATION",
+              "action": "SEND_TO",
+              "nextState": "PENDING_DEPT_VERIFICATION",
+              "roles": [
+                "BPA1_APPROVER",
+                "BPA2_APPROVER",
+                "BPA3_APPROVER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_DEPT_VERIFICATION",
+              "action": "SHOW_CAUSE",
+              "nextState": "PENDING_SHOW_CAUSE_REPLY",
+              "roles": [
+                "BPA1_APPROVER",
+                "BPA2_APPROVER",
+                "BPA3_APPROVER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_DEPT_VERIFICATION",
+              "action": "REVOKE",
+              "nextState": "REVOKED",
+              "roles": [
+                "BPA1_APPROVER",
+                "BPA2_APPROVER",
+                "BPA3_APPROVER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_DEPT_VERIFICATION",
+              "action": "ACCEPT",
+              "nextState": "DEPT_VERIFIED",
+              "roles": [
+                "BPA1_APPROVER",
+                "BPA2_APPROVER",
+                "BPA3_APPROVER"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "DEPT_VERIFIED",
+          "applicationStatus": "APPROVED",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": null
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "REJECTED",
+          "applicationStatus": "REJECTED",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": true,
+          "isStateUpdatable": false,
+          "actions": null
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "REVOKED",
+          "applicationStatus": "PERMIT_REVOKED",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": true,
+          "isStateUpdatable": false,
+          "actions": null
+        }
+      ]
+    }
+  ]
+}

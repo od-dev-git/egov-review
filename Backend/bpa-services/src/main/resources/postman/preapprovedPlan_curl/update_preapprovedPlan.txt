@@ -1,0 +1,95 @@
+curl --location --request POST 'http://local.egov.org/bpa-services/v1/preapprovedplan/_update' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "RequestInfo": {
+        "apiId": "Rainmaker",
+        "ver": ".01",
+        "action": "_search",
+        "did": "1",
+        "key": "",
+        "msgId": "20170310130900|en_IN",
+        "requesterId": "",
+        "authToken": "361a811b-03f7-4bfd-aa54-99b376aa50c4"
+    },
+    "preapprovedPlan": {
+        "id": "9b7508f1-ee37-4f81-8a33-ce53ee709210",
+        "drawingNo": "BP_PAP-CTC-2022-06-15-000016",
+        "plotLength": 100,
+        "plotWidth": 50,
+        "roadWidth": 10,
+        "drawingDetail": {
+            "blocks": [
+                {
+                    "building": {
+                        "floors": [
+                            {
+                                "occupancies": [
+                                    {
+                                        "type": "OCCUPANCY_B2",
+                                        "floorArea": 3126.6464,
+                                        "builtUpArea": 3126.6464
+                                    }
+                                ]
+                            }
+                        ],
+                        "totalFloors": 1.0
+                    },
+                    "setBacks": [
+                        {
+                            "rearYard": {
+                                "area": 495.5593,
+                                "mean": 7.95
+                            },
+                            "frontYard": {
+                                "area": 555.5775,
+                                "mean": 9.03
+                            },
+                            "sideYard1": {
+                                "area": 456.7212,
+                                "mean": 12.63
+                            },
+                            "sideYard2": {
+                                "area": 819.8001,
+                                "mean": 10.05
+                            }
+                        }
+                    ]
+                }
+            ],
+            "plotArea": 4864.95
+        },
+        "active": false,
+        "tenantId": "od.cuttack",
+        "additionalDetails": null,
+        "auditDetails": {
+            "createdBy": "2743bf22-0101-5121-bpa2-79e5d0ce0005",
+            "lastModifiedBy": "2743bf22-0101-5121-bpa2-79e5d0ce0005",
+            "createdTime": 1655301861183,
+            "lastModifiedTime": 1655301861183
+        },
+        "documents": [
+            {
+                "id": "74de24d3-6b51-4184-9993-c0c42fe8054e",
+                "documentType": "APPL.IDENTITYPROOF.DRIVINGLICENSE",
+                "fileStoreId": "526fd8d6-0968-4212-aceb-97d2f96d91ea",
+                "documentUid": null,
+                "additionalDetails": {
+                    "uploadedBy": "Citizen",
+                    "uploadedTime": 1.655107308305E12
+                },
+                "auditDetails": null
+            },
+            {
+                "id": "0b569e2a-d5ae-4345-9655-098a5ebf2512",
+                "documentType": "BPD.BPL.BPL",
+                "fileStoreId": "bf8c6fec-c6c9-4349-a62e-d6690b7ddc7d",
+                "documentUid": null,
+                "additionalDetails": {
+                    "uploadedBy": "Citizen",
+                    "uploadedTime": 1.655107311039E12
+                },
+                "auditDetails": null
+            }
+        ]
+    }
+}'

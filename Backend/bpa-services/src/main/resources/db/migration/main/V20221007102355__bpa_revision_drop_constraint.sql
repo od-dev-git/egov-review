@@ -1,0 +1,1 @@
+ALTER TABLE eg_bpa_buildingplan_revision DROP CONSTRAINT fk_eg_bpa_buildingplan_revision;

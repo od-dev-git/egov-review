@@ -1,0 +1,1 @@
+ALTER TABLE eg_pt_address ADD ward CHARACTER VARYING(128);

@@ -1,0 +1,91 @@
+curl --location --request POST 'http://local.egov.org/bpa-services/v1/preapprovedplan/_create' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "RequestInfo": {
+        "apiId": "Rainmaker",
+        "ver": ".01",
+        "action": "_search",
+        "did": "1",
+        "key": "",
+        "msgId": "20170310130900|en_IN",
+        "requesterId": "",
+        "authToken": "361a811b-03f7-4bfd-aa54-99b376aa50c4"
+    },
+    "preapprovedPlan": {
+        "tenantId": "od.cuttack",
+        "plotLength": 100,
+        "plotWidth": 50,
+        "roadWidth": 10,
+        "drawingDetail": {
+            "blocks": [
+                {
+                    "building": {
+                        "totalFloors": 1,
+                        "floors": [
+                            {
+                                "occupancies": [
+                                    {
+                                        "type": "OCCUPANCY_B2",
+                                        "builtUpArea": 3126.6464,
+                                        "floorArea": 3126.6464
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "setBacks": [
+                        {
+                            "frontYard": {
+                                "mean": 9.03,
+                                "area": 555.5775
+                            },
+                            "rearYard": {
+                                "mean": 7.95,
+                                "area": 495.5593
+                            },
+                            "sideYard1": {
+                                "mean": 12.63,
+                                "area": 456.7212
+                            },
+                            "sideYard2": {
+                                "mean": 10.05,
+                                "area": 819.8001
+                            }
+                        }
+                    ]
+                }
+            ],
+            "plotArea": 4864.95,
+            "serviceType": "NEW_CONSTRUCTION",
+            "applicationType": "BUILDING_PLAN_SCRUTINY",
+            "totalBuitUpArea": 4864.95,
+            "requiredNOCs": []
+        },
+        "active": true,
+        "additionalDetails": {},
+        "documents": [
+            {
+                "documentType": "APPL.IDENTITYPROOF.DRIVINGLICENSE",
+                "fileStoreId": "526fd8d6-0968-4212-aceb-97d2f96d91ea",
+                "fileStore": "526fd8d6-0968-4212-aceb-97d2f96d91ea",
+                "fileName": "00003-2022-TH-v1.pdf",
+                "fileUrl": "https://digitaldesksujog051120.blob.core.windows.net/fileshare/od/undefined/June/13/165510730313700003-2022-TH-v1.pdf?sig=P46tyQMQuIfAT98iHkc2%2FEXHJuyqLHGSK4Ce4bqCKHY%3D&st=2022-06-13T08%3A01%3A46Z&se=2022-06-14T08%3A01%3A46Z&sv=2016-05-31&sp=r&sr=b",
+                "additionalDetails": {
+                    "uploadedBy": "Citizen",
+                    "uploadedTime": 1655107308305
+                }
+            },
+            {
+                "documentType": "BPD.BPL.BPL",
+                "fileStoreId": "bf8c6fec-c6c9-4349-a62e-d6690b7ddc7d",
+                "fileStore": "bf8c6fec-c6c9-4349-a62e-d6690b7ddc7d",
+                "fileName": "00001-2022-BE-v1.pdf",
+                "fileUrl": "https://digitaldesksujog051120.blob.core.windows.net/fileshare/od/undefined/June/13/165510731123200001-2022-BE-v1.pdf?sig=%2FNNz5h2qdhmsVUixXyGFIFosL9irQicBSGyOFZMKmqQ%3D&st=2022-06-13T08%3A01%3A51Z&se=2022-06-14T08%3A01%3A51Z&sv=2016-05-31&sp=r&sr=b",
+                "additionalDetails": {
+                    "uploadedBy": "Citizen",
+                    "uploadedTime": 1655107311039
+                }
+            }
+        ]
+    }
+}'

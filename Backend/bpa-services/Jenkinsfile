@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    tools {
+        // maven 'maven' // Use the name defined in the Maven installation configuration
+        jdk 'java-1.8'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                // Checkout the source code
+                checkout scm
+
+                // Build the Maven project
+                sh 'sudo su'
+                sh 'mvn -f bpa-services/pom.xml clean package -DskipTests'
+
+                // Build Docker
+                sh 'sudo docker build . -t odhub/bpa-services:rel-2-${BUILD_NUMBER} -f bpa-services/Dockerfile'
+                }
+            }
+        stage('Push') {
+            steps {
+                // Push the Docker image to a registry
+                sh "sudo docker push odhub/bpa-services::rel-2-${BUILD_NUMBER}"
+                }
+            }
+         }
+    }
+

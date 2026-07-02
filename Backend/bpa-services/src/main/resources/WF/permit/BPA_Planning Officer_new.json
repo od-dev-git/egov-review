@@ -1,0 +1,484 @@
+{
+  "RequestInfo": {
+    "apiId": "Rainmaker",
+    "action": "",
+    "did": 1,
+    "key": "",
+    "msgId": "20170310130900|en_IN",
+    "requesterId": "",
+    "ts": 1513579888683,
+    "ver": ".01",
+    "authToken": "8e34cc14-0ebe-45ff-9bb1-a16daf43073a"
+  },
+  "BusinessServices": [
+    {
+      "tenantId": "od",
+      "businessService": "BPA2",
+      "business": "bpa-services",
+      "businessServiceSla": 5184000000,
+      "states": [
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": null,
+          "applicationStatus": null,
+          "docUploadRequired": false,
+          "isStartState": true,
+          "isTerminateState": false,
+          "isStateUpdatable": true,
+          "actions": [
+            {
+              "tenantId": "od",
+              "action": "INITIATE",
+              "nextState": "SEND_TO_CITIZEN",
+              "roles": [
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "SEND_TO_CITIZEN",
+          "applicationStatus": "INITIATED",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": true,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "SEND_TO_CITIZEN",
+              "action": "SEND_TO_CITIZEN",
+              "nextState": "CITIZEN_APPROVAL_PENDING",
+              "roles": [
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "SEND_TO_CITIZEN",
+              "action": "INITIATE",
+              "nextState": "SEND_TO_CITIZEN",
+              "roles": [
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "CITIZEN_APPROVAL_PENDING",
+          "applicationStatus": "CITIZEN_APPROVAL_INPROCESS",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "CITIZEN_APPROVAL_PENDING",
+              "action": "APPROVE",
+              "nextState": "INPROGRESS",
+              "roles": [
+                "CITIZEN"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "CITIZEN_APPROVAL_PENDING",
+              "action": "SEND_TO_ARCHITECT",
+              "nextState": "SEND_TO_CITIZEN",
+              "roles": [
+                "CITIZEN"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "INPROGRESS",
+          "applicationStatus": "INPROGRESS",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "INPROGRESS",
+              "action": "INITIATE",
+              "nextState": "INPROGRESS",
+              "roles": [
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "INPROGRESS",
+              "action": "APPLY",
+              "nextState": "PENDING_APPL_FEE_PAYMENT",
+              "roles": [
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "PENDING_APPL_FEE_PAYMENT",
+          "applicationStatus": "PENDING_APPL_FEE",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_APPL_FEE_PAYMENT",
+              "action": "PAY",
+              "nextState": "DOC_VERIFICATION_PENDING",
+              "roles": [
+                "CITIZEN",
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON",
+                "SYSTEM_PAYMENT",
+                "CEMP"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_APPL_FEE_PAYMENT",
+              "action": "SKIP_PAYMENT",
+              "nextState": "DOC_VERIFICATION_PENDING",
+              "roles": [
+                "CITIZEN",
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON",
+                "SYSTEM_PAYMENT",
+                "CEMP"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_APPL_FEE_PAYMENT",
+              "action": "ADHOC",
+              "nextState": "PENDING_APPL_FEE_PAYMENT",
+              "roles": [
+                "CITIZEN",
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON",
+                "SYSTEM_PAYMENT",
+                "CEMP"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "DOC_VERIFICATION_PENDING",
+          "applicationStatus": "DOC_VERIFICATION_INPROGRESS",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "DOC_VERIFICATION_PENDING",
+              "action": "FORWARD",
+              "nextState": "FIELDINSPECTION_PENDING",
+              "roles": [
+                "BPA_VERIFIER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "DOC_VERIFICATION_PENDING",
+              "action": "REJECT",
+              "nextState": "REJECTED",
+              "roles": [
+                "BPA_VERIFIER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "DOC_VERIFICATION_PENDING",
+              "action": "SEND_BACK_TO_CITIZEN",
+              "nextState": "BACK_FROM_DOC_VERIFICATION",
+              "roles": [
+                "BPA_VERIFIER"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "FIELDINSPECTION_PENDING",
+          "applicationStatus": "FIELDINSPECTION_INPROGRESS",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "FIELDINSPECTION_PENDING",
+              "action": "FORWARD",
+              "nextState": "APP_L1_VERIFICATION_PENDING",
+              "roles": [
+                "BPA_FIELD_INSPECTOR"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "FIELDINSPECTION_PENDING",
+              "action": "SENDBACK",
+              "nextState": "DOC_VERIFICATION_PENDING",
+              "roles": [
+                "BPA_FIELD_INSPECTOR"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "APP_L1_VERIFICATION_PENDING",
+          "applicationStatus": "APP_L1_VERIFICATION_INPROGRESS",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "APP_L1_VERIFICATION_PENDING",
+              "action": "FORWARD",
+              "nextState": "APPROVAL_PENDING",
+              "roles": [
+                "BPA2_APP_L1_VERIFIER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "APP_L1_VERIFICATION_PENDING",
+              "action": "SENDBACK",
+              "nextState": "FIELDINSPECTION_PENDING",
+              "roles": [
+                "BPA2_APP_L1_VERIFIER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "APP_L1_VERIFICATION_PENDING",
+              "action": "SEND_BACK_TO_CITIZEN",
+              "nextState": "BACK_FROM_APP_L1_VERIFICATION",
+              "roles": [
+                "BPA2_APP_L1_VERIFIER"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "APPROVAL_PENDING",
+          "applicationStatus": "APPROVAL_INPROGRESS",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "APPROVAL_PENDING",
+              "action": "APPROVE",
+              "nextState": "PENDING_SANC_FEE_PAYMENT",
+              "roles": [
+                "BPA2_APPROVER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "APPROVAL_PENDING",
+              "action": "REJECT",
+              "nextState": "REJECTED",
+              "roles": [
+                "BPA2_APPROVER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "APPROVAL_PENDING",
+              "action": "SENDBACK",
+              "nextState": "APP_L1_VERIFICATION_PENDING",
+              "roles": [
+                "BPA2_APPROVER"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "APPROVAL_PENDING",
+              "action": "SEND_BACK_TO_CITIZEN",
+              "nextState": "BACK_FROM_APPROVAL",
+              "roles": [
+                "BPA2_APPROVER"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "PENDING_SANC_FEE_PAYMENT",
+          "applicationStatus": "PENDING_SANC_FEE_PAYMENT",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": false,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_SANC_FEE_PAYMENT",
+              "action": "ADHOC",
+              "nextState": "PENDING_SANC_FEE_PAYMENT",
+              "roles": [
+                "CITIZEN",
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON",
+                "SYSTEM_PAYMENT",
+                "CEMP"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_SANC_FEE_PAYMENT",
+              "action": "PAY",
+              "nextState": "APPROVED",
+              "roles": [
+                "CITIZEN",
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON",
+                "SYSTEM_PAYMENT",
+                "CEMP"
+              ]
+            },
+            {
+              "tenantId": "od",
+              "currentState": "PENDING_SANC_FEE_PAYMENT",
+              "action": "SKIP_PAYMENT",
+              "nextState": "APPROVED",
+              "roles": [
+                "CITIZEN",
+                "BPA_ARCHITECT",
+                "BPA_TECHNICALPERSON",
+                "SYSTEM_PAYMENT",
+                "CEMP"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "APPROVED",
+          "applicationStatus": "APPROVED",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": true,
+          "isStateUpdatable": false,
+          "actions": null
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "REJECTED",
+          "applicationStatus": "REJECTED",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": true,
+          "isStateUpdatable": false,
+          "actions": null
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "BACK_FROM_DOC_VERIFICATION",
+          "applicationStatus": "CITIZEN_ACTION_PENDING_AT_DOC_VERIF",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": true,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "BACK_FROM_DOC_VERIFICATION",
+              "action": "FORWARD",
+              "nextState": "DOC_VERIFICATION_PENDING",
+              "roles": [
+                "CITIZEN",
+                "BPA_ARCHITECT"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "BACK_FROM_APP_L1_VERIFICATION",
+          "applicationStatus": "CITIZEN_ACTION_PENDING_AT_APP_L1_VERIF",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": true,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "BACK_FROM_APP_L1_VERIFICATION",
+              "action": "FORWARD",
+              "nextState": "APP_L1_VERIFICATION_PENDING",
+              "roles": [
+                "CITIZEN",
+                "BPA_ARCHITECT"
+              ]
+            }
+          ]
+        },
+        {
+          "tenantId": "od",
+          "sla": null,
+          "state": "BACK_FROM_APPROVAL",
+          "applicationStatus": "CITIZEN_ACTION_PENDING_AT_APPROVAL",
+          "docUploadRequired": false,
+          "isStartState": false,
+          "isTerminateState": false,
+          "isStateUpdatable": true,
+          "actions": [
+            {
+              "tenantId": "od",
+              "currentState": "BACK_FROM_APPROVAL",
+              "action": "FORWARD",
+              "nextState": "APPROVAL_PENDING",
+              "roles": [
+                "CITIZEN",
+                "BPA_ARCHITECT"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

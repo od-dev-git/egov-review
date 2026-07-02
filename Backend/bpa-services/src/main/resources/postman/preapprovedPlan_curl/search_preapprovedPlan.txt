@@ -1,0 +1,17 @@
+curl --location --request POST 'http://local.egov.org/bpa-services/v1/preapprovedplan/_search' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "RequestInfo": {
+        "apiId": "Rainmaker",
+        "ver": ".01",
+        "action": "_search",
+        "did": "1",
+        "key": "",
+        "msgId": "20170310130900|en_IN",
+        "requesterId": "",
+        "authToken": "361a811b-03f7-4bfd-aa54-99b376aa50c4"
+    },
+    "preapprovedPlanSearchCriteria": {
+        "drawingNo": "BP_PAP-CTC-2022-06-16-000017"
+    }
+}'
