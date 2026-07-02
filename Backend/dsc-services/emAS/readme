@@ -1,0 +1,7 @@
+Steps to build the Docker Image:
+Step 1: We need to copy the emas3.war, emasadmin3.war and wildfly.zip files into the emAS directory (Directory where Docker file present) from the below mentioned server location: 
+obpsdev@40.80.83.210:/home/obpsdev/obaid-share/DSC/emAS 
+For Production deployment please use as ds.zip file as it is.
+For Dev deployment please rename ds.zip as ds_prod.zip and ds_dev.zip as ds.zip. After Dev deployment please revert the changes (rename ds_prod.zip as ds.zip and ds.zip as ds_dev.zip)
+Step 2: execute the docker build command 
+Step 3. Push the image using docker push command

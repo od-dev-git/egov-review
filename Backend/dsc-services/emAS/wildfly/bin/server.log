@@ -1,0 +1,104 @@
+2020-04-18 10:46:21,364 INFO  [org.jboss.modules] (main)   JBoss Modules version 1.6.1.Final
+2020-04-18 10:46:21,673 INFO  [org.jboss.msc] (main)   JBoss MSC version 1.2.7.SP1
+2020-04-18 10:46:21,815 INFO  [org.jboss.as] (MSC service thread 1-8)   WFLYSRV0049: WildFly Full 11.0.0.Final (WildFly Core 3.0.8.Final) starting
+2020-04-18 10:46:21,816 DEBUG [org.jboss.as.config] (MSC service thread 1-8)   Configured system properties:
+	awt.toolkit = sun.awt.X11.XToolkit
+	file.encoding = UTF-8
+	file.encoding.pkg = sun.io
+	file.separator = /
+	java.awt.graphicsenv = sun.awt.X11GraphicsEnvironment
+	java.awt.headless = true
+	java.awt.printerjob = sun.print.PSPrinterJob
+	java.class.path = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/jboss-modules.jar
+	java.class.version = 52.0
+	java.endorsed.dirs = /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/endorsed
+	java.ext.dirs = /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext:/usr/java/packages/lib/ext
+	java.home = /usr/lib/jvm/java-8-openjdk-amd64/jre
+	java.io.tmpdir = /tmp
+	java.library.path = /usr/java/packages/lib/amd64:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
+	java.net.preferIPv4Stack = true
+	java.runtime.name = OpenJDK Runtime Environment
+	java.runtime.version = 1.8.0_242-8u242-b08-0ubuntu3~18.04-b08
+	java.specification.name = Java Platform API Specification
+	java.specification.vendor = Oracle Corporation
+	java.specification.version = 1.8
+	java.util.logging.manager = org.jboss.logmanager.LogManager
+	java.vendor = Private Build
+	java.vendor.url = http://java.oracle.com/
+	java.vendor.url.bug = http://bugreport.sun.com/bugreport/
+	java.version = 1.8.0_242
+	java.vm.info = mixed mode
+	java.vm.name = OpenJDK 64-Bit Server VM
+	java.vm.specification.name = Java Virtual Machine Specification
+	java.vm.specification.vendor = Oracle Corporation
+	java.vm.specification.version = 1.8
+	java.vm.vendor = Private Build
+	java.vm.version = 25.242-b08
+	javax.management.builder.initial = org.jboss.as.jmx.PluggableMBeanServerBuilder
+	javax.xml.datatype.DatatypeFactory = __redirected.__DatatypeFactory
+	javax.xml.parsers.DocumentBuilderFactory = __redirected.__DocumentBuilderFactory
+	javax.xml.parsers.SAXParserFactory = __redirected.__SAXParserFactory
+	javax.xml.stream.XMLEventFactory = __redirected.__XMLEventFactory
+	javax.xml.stream.XMLInputFactory = __redirected.__XMLInputFactory
+	javax.xml.stream.XMLOutputFactory = __redirected.__XMLOutputFactory
+	javax.xml.transform.TransformerFactory = __redirected.__TransformerFactory
+	javax.xml.validation.SchemaFactory:http://www.w3.org/2001/XMLSchema = __redirected.__SchemaFactory
+	javax.xml.xpath.XPathFactory:http://java.sun.com/jaxp/xpath/dom = __redirected.__XPathFactory
+	jboss.bind.address = localhost
+	jboss.bind.address.management = localhost
+	jboss.home.dir = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE
+	jboss.host.name = ubuntu
+	jboss.modules.dir = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/modules
+	jboss.modules.system.pkgs = org.jboss.byteman
+	jboss.node.name = ubuntu
+	jboss.qualified.host.name = ubuntu.internal.cloudapp.net
+	jboss.server.base.dir = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone
+	jboss.server.config.dir = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone/configuration
+	jboss.server.data.dir = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone/data
+	jboss.server.deploy.dir = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone/data/content
+	jboss.server.log.dir = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone/log
+	jboss.server.name = ubuntu
+	jboss.server.persist.config = true
+	jboss.server.temp.dir = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone/tmp
+	line.separator = 
+
+	logging.configuration = file:/home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone/configuration/logging.properties
+	module.path = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/modules
+	org.jboss.boot.log.file = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone/log/boot.log
+	org.jboss.logmanager.nocolor = true
+	org.jboss.resolver.warning = true
+	org.jboss.server.bootstrap.maxThreads = 32
+	org.xml.sax.driver = __redirected.__XMLReaderFactory
+	os.arch = amd64
+	os.name = Linux
+	os.version = 5.0.0-1036-azure
+	path.separator = :
+	program.name = JBossTools: WildFly 11 at localhost
+	signby = file
+	spring.profiles.active = production
+	sun.arch.data.model = 64
+	sun.boot.class.path = /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/resources.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jsse.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jce.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/charsets.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jfr.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/classes
+	sun.boot.library.path = /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64
+	sun.cpu.endian = little
+	sun.cpu.isalist = 
+	sun.desktop = gnome
+	sun.io.unicode.encoding = UnicodeLittle
+	sun.java.command = org.jboss.modules.Main -mp /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/modules org.jboss.as.standalone -b localhost --server-config=standalone.xml -Djboss.server.base.dir=/home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone
+	sun.java.launcher = SUN_STANDARD
+	sun.jnu.encoding = UTF-8
+	sun.management.compiler = HotSpot 64-Bit Tiered Compilers
+	sun.os.patch.level = unknown
+	sun.rmi.dgc.client.gcInterval = 3600000
+	sun.rmi.dgc.server.gcInterval = 3600000
+	user.dir = /home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/bin
+	user.home = /home/atanub1jun07
+	user.language = en
+	user.name = atanub1jun07
+	user.timezone = Etc/UTC
+2020-04-18 10:46:21,817 DEBUG [org.jboss.as.config] (MSC service thread 1-8)   VM Arguments: -agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:45367 -Dprogram.name=JBossTools: WildFly 11 at localhost -Xms1g -Xmx2g -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true -Dsun.rmi.dgc.client.gcInterval=3600000 -Dsun.rmi.dgc.server.gcInterval=3600000 -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true -Dorg.jboss.boot.log.file=/home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone/log/boot.log -Dlogging.configuration=file:/home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE/standalone/configuration/logging.properties -Djboss.home.dir=/home/atanub1jun07/COE/appserver/wildfly-11.0.0.Final_COE -Dorg.jboss.logmanager.nocolor=true -Djboss.bind.address.management=localhost -Dspring.profiles.active=production -Dorg.jboss.server.bootstrap.maxThreads=32 -Dsignby=file -Dfile.encoding=UTF-8 
+2020-04-18 10:46:23,429 INFO  [org.jboss.as.controller.management-deprecated] (Controller Boot Thread)   WFLYCTL0028: Attribute 'security-realm' in the resource at address '/core-service=management/management-interface=http-interface' is deprecated, and may be removed in future version. See the attribute description in the output of the read-resource-description operation to learn more about the deprecation.
+2020-04-18 10:46:23,559 INFO  [org.jboss.as.server.deployment.scanner] (DeploymentScanner-threads - 1)   WFLYDS0004: Found egov-ear-3.0.0-COE-SNAPSHOT.ear in deployment directory. To trigger deployment create a file called egov-ear-3.0.0-COE-SNAPSHOT.ear.dodeploy
+2020-04-18 10:46:23,564 INFO  [org.wildfly.security] (Controller Boot Thread)   ELY00001: WildFly Elytron version 1.1.6.Final
+2020-04-18 10:46:23,623 INFO  [org.jboss.as.controller.management-deprecated] (Controller Boot Thread)   WFLYCTL0028: Attribute 'security-realm' in the resource at address '/subsystem=undertow/server=default-server/https-listener=https' is deprecated, and may be removed in future version. See the attribute description in the output of the read-resource-description operation to learn more about the deprecation.
+2020-04-18 10:46:23,675 INFO  [org.jboss.as.server] (Controller Boot Thread)   WFLYSRV0039: Creating http management service using socket-binding (management-http)
+2020-04-18 10:46:23,690 INFO  [org.xnio] (MSC service thread 1-6)   XNIO version 3.5.4.Final

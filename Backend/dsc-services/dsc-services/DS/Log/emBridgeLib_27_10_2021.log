@@ -1,0 +1,13 @@
+2021-10-27T04:47:24.106Z|Lic Read success
+2021-10-27T04:47:24.111Z|Data from Lic Read success
+2021-10-27T04:47:24.113Z|Signature read success
+2021-10-27T04:47:24.115Z|Data read success
+2021-10-27T04:47:24.380Z|Data ready to decrypt
+2021-10-27T04:47:33.462Z|Data decrypt success
+2021-10-27T04:47:33.462Z|Data split success
+2021-10-27T04:47:33.462Z|KeyId set success
+2021-10-27T04:47:33.463Z|Key set success
+2021-10-27T04:47:33.463Z|ProductID set success
+2021-10-27T04:47:33.463Z|License init success
+2021-10-27T04:47:52.012Z|Generating pdf signing response
+2021-10-27T04:47:52.114Z|error | Temp file does not exist|decPKCSBulkSign

@@ -1,0 +1,26 @@
+2021-10-26T07:27:19.122Z|Lic Read success
+2021-10-26T07:27:19.128Z|Data from Lic Read success
+2021-10-26T07:27:19.130Z|Signature read success
+2021-10-26T07:27:19.132Z|Data read success
+2021-10-26T07:27:19.362Z|Data ready to decrypt
+2021-10-26T07:27:28.797Z|Data decrypt success
+2021-10-26T07:27:28.797Z|Data split success
+2021-10-26T07:27:28.798Z|KeyId set success
+2021-10-26T07:27:28.798Z|Key set success
+2021-10-26T07:27:28.798Z|ProductID set success
+2021-10-26T07:27:28.799Z|License init success
+2021-10-26T07:28:00.004Z|Generating pdf signing response
+2021-10-26T07:28:00.006Z|error | Temp file is not correct|decPKCSBulkSign
+2021-10-26T07:31:06.688Z|Lic Read success
+2021-10-26T07:31:06.696Z|Data from Lic Read success
+2021-10-26T07:31:06.698Z|Signature read success
+2021-10-26T07:31:06.703Z|Data read success
+2021-10-26T07:31:06.959Z|Data ready to decrypt
+2021-10-26T07:31:16.243Z|Data decrypt success
+2021-10-26T07:31:16.244Z|Data split success
+2021-10-26T07:31:16.244Z|KeyId set success
+2021-10-26T07:31:16.245Z|Key set success
+2021-10-26T07:31:16.245Z|ProductID set success
+2021-10-26T07:31:16.245Z|License init success
+2021-10-26T07:31:32.798Z|Generating pdf signing response
+2021-10-26T07:31:32.799Z|error | Temp file is not correct|decPKCSBulkSign
