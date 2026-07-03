@@ -1,0 +1,1 @@
+alter table EDCR_APPLICATION add column alterationSubService character varying(48);

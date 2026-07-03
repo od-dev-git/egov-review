@@ -1,0 +1,10 @@
+UPDATE state.egdcr_layername
+SET "key"='LAYER_NAME_FAR_AREA_ADD', value='FAR_AREA_ADD'
+WHERE "key"='LAYER_NAME_BUILT_UP_AREA_ADD';
+
+UPDATE state.egdcr_layername
+SET "key"='LAYER_NAME_EXISTING_FAR_AREA_ADD', value='BLK_%s_FLR_%s_FAR_AREA_ADD_EXISTING'
+WHERE "key"='LAYER_NAME_EXISTING_BLT_UP_AREA_ADD';
+
+
+

@@ -1,0 +1,417 @@
+{
+	"info": {
+		"_postman_id": "a060cf3c-2ba3-4018-8634-edb98e3a54fa",
+		"name": "DCR",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13375536"
+	},
+	"item": [
+		{
+			"name": "BUILDING_OC_PLAN_SCRUTINY",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "planFile",
+							"type": "file",
+							"src": "/C:/Users/mdrezak918/Downloads/oc/BP 1 (6).dxf"
+						},
+						{
+							"key": "edcrRequest",
+							"value": "{\"transactionNumber\":\"aae78979-96d3-48fc-8f8e-14093d9z2001\",\"edcrNumber\":\"DCR92022MDJA4\",\"planFile\":null,\"tenantId\":\"od\",\"RequestInfo\":{\"apiId\":\"\",\"ver\":\"\",\"ts\":\"\",\"action\":\"\",\"did\":\"\",\"authToken\":\"\",\"key\":\"\",\"msgId\":\"\",\"correlationId\":\"\",\"userInfo\":{\"id\":\"fa8efaf4-ef7d-45eb-a495-d18002a4fd09\",\"tenantId\":\"od\"}},\"applicantName\":\"Freddy Citizen\",\"appliactionType\":\"BUILDING_OC_PLAN_SCRUTINY\",\"applicationSubType\":\"NEW_CONSTRUCTION\",\"permitDate\":1623671921322,\"permitNumber\":\"OD-BP-2021-06-14-000069\",\"comparisonEdcrNumber\":\"DCR92022MDJA4\"}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/scrutinize?tenantId=od",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"scrutinize"
+					],
+					"query": [
+						{
+							"key": "tenantId",
+							"value": "od"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BUILDING_PLAN_SCRUTINY",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "planFile",
+							"type": "file",
+							"src": "/C:/Users/mdrezak918/Downloads/BP1 (1).dxf"
+						},
+						{
+							"key": "edcrRequest",
+							"value": "{\"transactionNumber\":\"0c3b49f8-a55a-4d1b-b5f6-392c9c19z007\",\"edcrNumber\":\"\",\"planFile\":null,\"tenantId\":\"od.cuttack\",\"RequestInfo\":{\"apiId\":\"\",\"ver\":\"\",\"ts\":\"\",\"action\":\"\",\"did\":\"\",\"authToken\":\"11d3b6b5-1a99-4739-b6d6-113440237bf1\",\"key\":\"\",\"msgId\":\"\",\"correlationId\":\"\",\"userInfo\":{\"id\":\"450c61be-25fa-402c-bc25-29bbec4bf513\",\"tenantId\":\"od\"}},\"applicantName\":\"reza\",\"appliactionType\":\"BUILDING_PLAN_SCRUTINY\",\"applicationSubType\":\"NEW_CONSTRUCTION\",\"isRevisionApplication\": true}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/scrutinize?tenantId=od.cuttack",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"scrutinize"
+					],
+					"query": [
+						{
+							"key": "tenantId",
+							"value": "od.cuttack"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BUILDING_PLAN_SCRUTINY_Alrt",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "planFile",
+							"type": "file",
+							"src": "/C:/Users/mdrezak918/Downloads/DXF file/public ashroom issue file with regular room.dxf"
+						},
+						{
+							"key": "edcrRequest",
+							"value": "{\"transactionNumber\":\"ZRA2N221S122242z1001400310\",\"edcrNumber\":\"\",\"planFile\":null,\"tenantId\":\"od.cuttack\",\"RequestInfo\":{\"apiId\":\"\",\"ver\":\"\",\"ts\":\"\",\"action\":\"\",\"did\":\"\",\"authToken\":\"\",\"key\":\"\",\"msgId\":\"\",\"correlationId\":\"\",\"userInfo\":{\"id\":\"fa8efaf4-ef7d-45eb-a495-d18002a4fd09\",\"tenantId\":\"od\"}},\"applicantName\":\"freddy\",\"appliactionType\":\"BUILDING_PLAN_SCRUTINY\",\"applicationSubType\":\"ALTERATION\"}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/scrutinize?tenantId=od.cuttack",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"scrutinize"
+					],
+					"query": [
+						{
+							"key": "tenantId",
+							"value": "od.cuttack"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BUILDING_PLAN_SCRUTINY_Alrt_service_A",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "planFile",
+							"type": "file",
+							"src": "/C:/Users/mdrezak918/Downloads/Mix/01 Not Mixed Use - Other provisions_v2.dxf"
+						},
+						{
+							"key": "edcrRequest",
+							"value": "{\"transactionNumber\":\"aae78979-96d3-48fc-8f8e-15093d9z0012\",\"edcrNumber\":\"DCR32022TKNUY\",\"planFile\":null,\"tenantId\":\"od\",\"RequestInfo\":{\"apiId\":\"\",\"ver\":\"\",\"ts\":\"\",\"action\":\"\",\"did\":\"\",\"authToken\":\"\",\"key\":\"\",\"msgId\":\"\",\"correlationId\":\"\",\"userInfo\":{\"id\":\"fa8efaf4-ef7d-45eb-a495-d18002a4fd09\",\"tenantId\":\"od\"}},\"applicantName\":\"Freddy Citizen\",\"appliactionType\":\"BUILDING_PLAN_SCRUTINY\",\"applicationSubType\":\"NEW_CONSTRUCTION\",\"permitDate\":1623671921322,\"permitNumber\":\"OD-BP-2021-06-14-000069\",\"comparisonEdcrNumber\":\"DCR32022TKNUY\",\"isRevisionApplication\": true,\"isApplicationPersentInSujogSystem\":true,\"isPermitLetterExpried\":false,\"alterationSubService\":\"ALTERATION_SERVICE_A\"}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/scrutinize?tenantId=od.cuttack",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"scrutinize"
+					],
+					"query": [
+						{
+							"key": "tenantId",
+							"value": "od.cuttack"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BUILDING_PLAN_SCRUTINY_Alrt_service_B",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "planFile",
+							"type": "file",
+							"src": "/C:/Users/mdrezak918/Downloads/Mix/01 Not Mixed Use - Other provisions_v2.dxf"
+						},
+						{
+							"key": "edcrRequest",
+							"value": "{\"transactionNumber\":\"aae78979-96d3-48fc-8f8e-14093d9r0000\",\"edcrNumber\":\"DCR32022TKNUY\",\"planFile\":null,\"tenantId\":\"od\",\"RequestInfo\":{\"apiId\":\"\",\"ver\":\"\",\"ts\":\"\",\"action\":\"\",\"did\":\"\",\"authToken\":\"\",\"key\":\"\",\"msgId\":\"\",\"correlationId\":\"\",\"userInfo\":{\"id\":\"fa8efaf4-ef7d-45eb-a495-d18002a4fd09\",\"tenantId\":\"od\"}},\"applicantName\":\"Freddy Citizen\",\"appliactionType\":\"BUILDING_PLAN_SCRUTINY\",\"applicationSubType\":\"ALTERATION\",\"permitDate\":1623671921322,\"permitNumber\":\"OD-BP-2021-06-14-000069\",\"comparisonEdcrNumber\":\"DCR32022TKNUY\",\"isRevisionApplication\": true,\"isApplicationPersentInSujogSystem\":true,\"isPermitLetterExpried\":false,\"alterationSubService\":\"ALTERATION_SERVICE_B\"}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/scrutinize?tenantId=od.cuttack",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"scrutinize"
+					],
+					"query": [
+						{
+							"key": "tenantId",
+							"value": "od.cuttack"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BUILDING_PLAN_SCRUTINY_Alrt_service_C",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "planFile",
+							"type": "file",
+							"src": "/C:/Users/mdrezak918/Downloads/Mix/01 Not Mixed Use - Other provisions_v2.dxf"
+						},
+						{
+							"key": "edcrRequest",
+							"value": "{\"transactionNumber\":\"aae78979-96d3-48fc-8f8e-14093d9k0003\",\"edcrNumber\":\"DCR32022TKNUY\",\"planFile\":null,\"tenantId\":\"od\",\"RequestInfo\":{\"apiId\":\"\",\"ver\":\"\",\"ts\":\"\",\"action\":\"\",\"did\":\"\",\"authToken\":\"\",\"key\":\"\",\"msgId\":\"\",\"correlationId\":\"\",\"userInfo\":{\"id\":\"fa8efaf4-ef7d-45eb-a495-d18002a4fd09\",\"tenantId\":\"od\"}},\"applicantName\":\"Freddy Citizen\",\"appliactionType\":\"BUILDING_PLAN_SCRUTINY\",\"applicationSubType\":\"ALTERATION\",\"permitDate\":1623671921322,\"permitNumber\":\"OD-BP-2021-06-14-000069\",\"comparisonEdcrNumber\":\"DCR32022TKNUY\",\"isRevisionApplication\": false,\"isApplicationPersentInSujogSystem\":true,\"isPermitLetterExpried\":true,\"alterationSubService\":\"ALTERATION_SERVICE_C\"}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/scrutinize?tenantId=od.cuttack",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"scrutinize"
+					],
+					"query": [
+						{
+							"key": "tenantId",
+							"value": "od.cuttack"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BUILDING_PLAN_SCRUTINY_Alrt_service_D",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "planFile",
+							"type": "file",
+							"src": "/C:/Users/mdrezak918/Downloads/Mix/01 Not Mixed Use - Other provisions_v2.dxf"
+						},
+						{
+							"key": "edcrRequest",
+							"value": "{\"transactionNumber\":\"aae78979-96d3-48fc-8f8e-14093d9e0000\",\"edcrNumber\":\"DCR32022TKNUY\",\"planFile\":null,\"tenantId\":\"od\",\"RequestInfo\":{\"apiId\":\"\",\"ver\":\"\",\"ts\":\"\",\"action\":\"\",\"did\":\"\",\"authToken\":\"\",\"key\":\"\",\"msgId\":\"\",\"correlationId\":\"\",\"userInfo\":{\"id\":\"fa8efaf4-ef7d-45eb-a495-d18002a4fd09\",\"tenantId\":\"od\"}},\"applicantName\":\"Freddy Citizen\",\"appliactionType\":\"BUILDING_PLAN_SCRUTINY\",\"applicationSubType\":\"ALTERATION\",\"permitDate\":1623671921322,\"permitNumber\":\"OD-BP-2021-06-14-000069\",\"comparisonEdcrNumber\":\"DCR32022TKNUY\",\"isRevisionApplication\": false,\"isApplicationPersentInSujogSystem\":true,\"isPermitLetterExpried\":false,\"alterationSubService\":\"ALTERATION_SERVICE_D\"}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/scrutinize?tenantId=od.cuttack",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"scrutinize"
+					],
+					"query": [
+						{
+							"key": "tenantId",
+							"value": "od.cuttack"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search dcr",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"RequestInfo\" : {\r\n    \"apiId\" : \"Rainmaker\",\r\n    \"action\" : \"\",\r\n    \"ver\" : \".01\",\r\n    \"ts\" : null,\r\n    \"did\" : \"1\",\r\n    \"key\" : \"\",\r\n    \"msgId\" : \"20170310130900|en_IN\",\r\n    \"authToken\" : null,\r\n    \"correlationId\" : \"9de6e5c1-e82d-4ffc-a302-4ca6a963ed6a\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/scrutinydetails?tenantId=od.cuttack&edcrNumber=DCR92021SQKLN",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"scrutinydetails"
+					],
+					"query": [
+						{
+							"key": "tenantId",
+							"value": "od.cuttack"
+						},
+						{
+							"key": "edcrNumber",
+							"value": "DCR92021SQKLN"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Featch Edcr api",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": \"1\",\r\n        \"ver\": \"1\",\r\n        \"ts\": \"01-01-2017 01:01:01\",\r\n        \"action\": \"create\",\r\n        \"did\": \"jh\",\r\n        \"key\": \"\",\r\n        \"msgId\": \"gfcfc\",\r\n        \"correlationId\": \"wefiuweiuff897\",\r\n        \"authToken\": \"79a504ce-93e9-4900-a427-88aebc3b711a\",\r\n        \"userInfo\": {\r\n            \"id\": \"fa8efaf4-ef7d-45eb-a495-d18002a4fd09\",\r\n            \"tenantId\": \"od\"\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/scrutinydetails?edcrNumber=DCR1120221YMIU&tenantId=od.cuttack",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"scrutinydetails"
+					],
+					"query": [
+						{
+							"key": "edcrNumber",
+							"value": "DCR1120221YMIU"
+						},
+						{
+							"key": "tenantId",
+							"value": "od.cuttack"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PermitOrderGenration",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"RequestInfo\": {\r\n        \"apiId\": \"1\",\r\n        \"ver\": \"1\",\r\n        \"ts\": \"01-01-2017 01:01:01\",\r\n        \"action\": \"create\",\r\n        \"did\": \"jh\",\r\n        \"key\": \"\",\r\n        \"msgId\": \"gfcfc\",\r\n        \"correlationId\": \"wefiuweiuff897\",\r\n        \"authToken\": \"8a60f233-32a2-40e8-b2c3-0bcfa1ab1556\",\r\n        \"userInfo\": {\r\n            \"id\": \"f8c99a50-e29e-42da-8a99-ed304ba86062\",\r\n            \"tenantId\": \"od\"\r\n        }\r\n    },\r\n    \"Bpa\": [\r\n        {\r\n            \"id\": \"192bbdef-57ae-4246-bcc8-b8652bf34b91\",\r\n            \"applicationNo\": \"BP-CTC-2022-07-08-002048\",\r\n            \"approvalNo\": \"BP/CTC/000221\",\r\n            \"accountId\": \"303c12b4-a3af-401c-b85a-08dabb49da28\",\r\n            \"edcrNumber\": \"DCR62022KBFVB\",\r\n            \"riskType\": null,\r\n            \"businessService\": \"BPA1\",\r\n            \"landId\": \"f7e523bb-c4c3-4b0a-8c21-c7554665fd50\",\r\n            \"tenantId\": \"od.cuttack\",\r\n            \"approvalDate\": 1657284512544,\r\n            \"applicationDate\": 0,\r\n            \"status\": \"SHOW_CAUSE_REPLY_VERIFICATION_PENDING\",\r\n            \"documents\": [\r\n                {\r\n                    \"id\": \"b3f745a4-5ab5-4414-8450-14cb80eba66d\",\r\n                    \"documentType\": \"APPL.OWNERIDPROOF.DRIVINGLICENSE\",\r\n                    \"fileStoreId\": \"62971f0d-1f81-46ee-85ac-6652c178dcb7\",\r\n                    \"documentUid\": null,\r\n                    \"additionalDetails\": {\r\n                        \"uploadedBy\": \"Citizen\",\r\n                        \"uploadedTime\": 1657283287629\r\n                    },\r\n                    \"auditDetails\": null\r\n                },\r\n                {\r\n                    \"id\": \"f2d70f42-2083-4698-823e-ce2e3569487b\",\r\n                    \"documentType\": \"APPL.IDENTITYPROOF.DRIVINGLICENSE\",\r\n                    \"fileStoreId\": \"275327b7-9ed4-4e1e-931e-7456a25581f1\",\r\n                    \"documentUid\": null,\r\n                    \"additionalDetails\": {\r\n                        \"uploadedBy\": \"Citizen\",\r\n                        \"uploadedTime\": 1657283282664\r\n                    },\r\n                    \"auditDetails\": null\r\n                }\r\n            ],\r\n            \"landInfo\": {\r\n                \"id\": \"f7e523bb-c4c3-4b0a-8c21-c7554665fd50\",\r\n                \"landUId\": null,\r\n                \"landUniqueRegNo\": null,\r\n                \"tenantId\": \"od.cuttack\",\r\n                \"status\": null,\r\n                \"address\": {\r\n                    \"tenantId\": \"od.cuttack\",\r\n                    \"doorNo\": null,\r\n                    \"plotNo\": null,\r\n                    \"id\": \"5f6d326f-d517-49b3-8bbe-32870de57825\",\r\n                    \"landmark\": null,\r\n                    \"city\": \"od.cuttack\",\r\n                    \"district\": null,\r\n                    \"region\": null,\r\n                    \"state\": null,\r\n                    \"country\": null,\r\n                    \"pincode\": null,\r\n                    \"additionDetails\": null,\r\n                    \"buildingName\": null,\r\n                    \"street\": null,\r\n                    \"locality\": {\r\n                        \"code\": \"VIL2\",\r\n                        \"name\": \"Arakhkud Aliash Talengapenth\",\r\n                        \"label\": \"Locality\",\r\n                        \"latitude\": null,\r\n                        \"longitude\": null,\r\n                        \"children\": [],\r\n                        \"materializedPath\": null\r\n                    },\r\n                    \"geoLocation\": {\r\n                        \"latitude\": null,\r\n                        \"longitude\": null,\r\n                        \"additionalDetails\": null\r\n                    },\r\n                    \"auditDetails\": null\r\n                },\r\n                \"ownershipCategory\": \"INDIVIDUAL.SINGLEOWNER\",\r\n                \"owners\": [\r\n                    {\r\n                        \"tenantId\": \"od\",\r\n                        \"name\": \"Rajshree fg\",\r\n                        \"ownerId\": \"a32eee62-4d4f-4269-8636-ad4f223d4a5b\",\r\n                        \"mobileNumber\": \"9898989898\",\r\n                        \"gender\": \"FEMALE\",\r\n                        \"fatherOrHusbandName\": \"pradeep\",\r\n                        \"correspondenceAddress\": \"lane no. 2\",\r\n                        \"isPrimaryOwner\": true,\r\n                        \"ownerShipPercentage\": null,\r\n                        \"ownerType\": null,\r\n                        \"institutionId\": null,\r\n                        \"documents\": null,\r\n                        \"relationship\": \"FATHER\",\r\n                        \"additionalDetails\": null,\r\n                        \"id\": 3185109,\r\n                        \"uuid\": \"e98a4b5e-0070-477b-a97d-cc1cc73b9c8f\",\r\n                        \"userName\": \"ca4ac7b9-b7ea-418a-beda-6102f260e5ad\",\r\n                        \"password\": null,\r\n                        \"salutation\": null,\r\n                        \"emailId\": \"\",\r\n                        \"altContactNumber\": null,\r\n                        \"pan\": null,\r\n                        \"aadhaarNumber\": null,\r\n                        \"permanentAddress\": null,\r\n                        \"permanentCity\": \"od.nuapada\",\r\n                        \"permanentPinCode\": null,\r\n                        \"correspondenceCity\": null,\r\n                        \"correspondencePinCode\": null,\r\n                        \"active\": true,\r\n                        \"dob\": 589766400000,\r\n                        \"pwdExpiryDate\": 1640821140000,\r\n                        \"locale\": null,\r\n                        \"type\": \"CITIZEN\",\r\n                        \"signature\": null,\r\n                        \"accountLocked\": false,\r\n                        \"roles\": [\r\n                            {\r\n                                \"id\": null,\r\n                                \"name\": \"Citizen\",\r\n                                \"code\": \"CITIZEN\",\r\n                                \"tenantId\": null\r\n                            }\r\n                        ],\r\n                        \"bloodGroup\": null,\r\n                        \"identificationMark\": null,\r\n                        \"photo\": null,\r\n                        \"createdBy\": null,\r\n                        \"createdDate\": null,\r\n                        \"lastModifiedBy\": null,\r\n                        \"lastModifiedDate\": null,\r\n                        \"otpReference\": null,\r\n                        \"auditDetails\": {\r\n                            \"createdBy\": \"303c12b4-a3af-401c-b85a-08dabb49da28\",\r\n                            \"lastModifiedBy\": \"f8c99a50-e29e-42da-8a99-ed304ba86062\",\r\n                            \"createdTime\": 1657283166924,\r\n                            \"lastModifiedTime\": 1657285174799\r\n                        }\r\n                    }\r\n                ],\r\n                \"institution\": null,\r\n                \"source\": \"MUNICIPAL_RECORDS\",\r\n                \"channel\": \"SYSTEM\",\r\n                \"documents\": null,\r\n                \"unit\": [\r\n                    {\r\n                        \"id\": \"665f764b-0a72-4f84-b5ee-a60d69c05bcf\",\r\n                        \"tenantId\": \"od.cuttack\",\r\n                        \"floorNo\": \"1\",\r\n                        \"unitType\": \"Block\",\r\n                        \"usageCategory\": \"\",\r\n                        \"occupancyType\": null,\r\n                        \"occupancyDate\": 0,\r\n                        \"additionalDetails\": null,\r\n                        \"auditDetails\": {\r\n                            \"createdBy\": \"303c12b4-a3af-401c-b85a-08dabb49da28\",\r\n                            \"lastModifiedBy\": \"f8c99a50-e29e-42da-8a99-ed304ba86062\",\r\n                            \"createdTime\": 1657283166924,\r\n                            \"lastModifiedTime\": 1657285174799\r\n                        }\r\n                    }\r\n                ],\r\n                \"additionalDetails\": null,\r\n                \"auditDetails\": {\r\n                    \"createdBy\": \"303c12b4-a3af-401c-b85a-08dabb49da28\",\r\n                    \"lastModifiedBy\": \"f8c99a50-e29e-42da-8a99-ed304ba86062\",\r\n                    \"createdTime\": 1657283166924,\r\n                    \"lastModifiedTime\": 1657285174799\r\n                }\r\n            },\r\n            \"workflow\": null,\r\n            \"auditDetails\": {\r\n                \"createdBy\": \"303c12b4-a3af-401c-b85a-08dabb49da28\",\r\n                \"lastModifiedBy\": \"303c12b4-a3af-401c-b85a-08dabb49da28\",\r\n                \"createdTime\": 1657283166988,\r\n                \"lastModifiedTime\": 1657285174569\r\n            },\r\n            \"additionalDetails\": {\r\n                \"validityDate\": 1751978912544,\r\n                \"approval_pending\": [\r\n                    \"(a) The land/ Building shall be used exclusively for {{occupancy}} purpose and the uses shall not be changed to any other use without prior approval of this Authority.\",\r\n                    \"(b) The development shall be undertaken strictly according to plans enclosed with necessary permission endorsement.\",\r\n                    \"(c) Parking space measuring_(Provided Parking Space)_ sq. mtr. as shown in the approved plan shall be exclusively used for parking and no part of it will be used for any other purpose.\",\r\n                    \"(d) The land over which construction is proposed is accessable by an approved means of access of_(Road Width)__ mtr. width.\",\r\n                    \"(e) The land in question must be in lawful ownership and peaceful possession of the applicant.\",\r\n                    \"(f) The applicant shall free gift_(Area acquired by Government)_ sq.mtr. of located in the(City)___ Municipal Corporation/Municipality/ NAC/Grama panchayat for the widening of the road/construction of new roads and other public amenities prior to completion of the development as indicated in the plan.\",\r\n                    \"(g) The permission is valid for period of three years with effect from the date of issue.\",\r\n                    \"(h) Permission accorded under the provision of Section 16 of ODA Act, cannot be construed as an evidence to claim right title interest on the plot on which the permission has been granted.\",\r\n                    \"(i) If any dispute arises with respect to right, title interest on the land on which the permission has been granted, the permission so granted shall be automatically treated as cancelled during the period of dispute.\",\r\n                    \"(j) Any construction and development made by the applicant or owner on the disputed land will be at his risk without any legal or financial liability on the Authority.\"\r\n                ],\r\n                \"fieldinspection_pending\": [\r\n                    {\r\n                        \"docs\": [\r\n                            {\r\n                                \"dropDownValues\": {\r\n                                    \"value\": \"FI.FIR.FIR\"\r\n                                }\r\n                            },\r\n                            {\r\n                                \"dropDownValues\": {\r\n                                    \"value\": \"FI.SINS.SINS\"\r\n                                }\r\n                            },\r\n                            {\r\n                                \"dropDownValues\": {\r\n                                    \"value\": \"FI.SISS.SISS\"\r\n                                }\r\n                            },\r\n                            {\r\n                                \"dropDownValues\": {\r\n                                    \"value\": \"FI.SIES.SIES\"\r\n                                }\r\n                            },\r\n                            {\r\n                                \"dropDownValues\": {\r\n                                    \"value\": \"FI.SIWS.SIWS\"\r\n                                }\r\n                            }\r\n                        ]\r\n                    }\r\n                ]\r\n            },\r\n            \"reWorkHistory\": null,\r\n            \"dscDetails\": [\r\n                {\r\n                    \"id\": \"49bf3c9f-f087-41a9-93ca-0005b2980224\",\r\n                    \"tenantId\": \"od.cuttack\",\r\n                    \"documentType\": null,\r\n                    \"documentId\": null,\r\n                    \"applicationNo\": \"BP-CTC-2022-07-08-002048\",\r\n                    \"approvedBy\": \"f8c99a50-e29e-42da-8a99-ed304ba86062\",\r\n                    \"additionalDetails\": null,\r\n                    \"auditDetails\": null\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/edcr/rest/dcr/generatePermitOrder",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"edcr",
+						"rest",
+						"dcr",
+						"generatePermitOrder"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

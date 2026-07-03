@@ -1,0 +1,1 @@
+alter table edcr_oc_comparison_detail add column alterationSubService character varying(48);

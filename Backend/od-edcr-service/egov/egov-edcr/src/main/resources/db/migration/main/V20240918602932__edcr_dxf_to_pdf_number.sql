@@ -1,0 +1,1 @@
+alter table edcr_application_detail add column dxf_to_pdf_no character varying(48);

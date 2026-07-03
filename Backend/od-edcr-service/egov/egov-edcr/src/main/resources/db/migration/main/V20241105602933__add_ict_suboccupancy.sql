@@ -1,0 +1,2 @@
+INSERT INTO generic.egbpa_sub_occupancy (id, code, "name", ordernumber, isactive, createdby, createddate, lastmodifieddate, lastmodifiedby, "version", description, maxcoverage, minfar, maxfar, occupancy, colorcode) 
+VALUES (nextval('generic.seq_egbpa_sub_occupancy'), 'AF-ICT', 'Information and Communication System', 4, true, 1, '2024-11-05 16:03:00.448', NULL, 1, 0, 'Information and Communication System', 222, 160, 161, (SELECT id FROM generic.egbpa_occupancy eo WHERE code = 'AF'), 102);
