@@ -2,6 +2,8 @@ package org.egov.dsc.model;
 
 @SuppressWarnings("serial")
 public class DSCException  extends Exception{
+	
+	private boolean dsc;
 
 	public DSCException() {
 		super();
@@ -22,5 +24,14 @@ public class DSCException  extends Exception{
 	public DSCException(Throwable cause) {
 		super(cause);
 	}
+	
+    public DSCException(String message, boolean dsc) {
+        super(message);
+        this.dsc = dsc;
+    }
+
+    public boolean isDsc() {
+        return dsc;
+    }
 
 }

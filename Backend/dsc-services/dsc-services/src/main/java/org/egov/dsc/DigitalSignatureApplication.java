@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -58,7 +59,11 @@ public class DigitalSignatureApplication {
 	
 	@Bean
 	public RestTemplate restTemplate() {
-	    return new RestTemplate();
+	    SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+	    requestFactory.setConnectTimeout(5000);
+	    requestFactory.setReadTimeout(30000);
+
+	    return new RestTemplate(requestFactory);
 	}
 
 }

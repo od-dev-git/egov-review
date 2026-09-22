@@ -84,7 +84,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -124,6 +123,23 @@
 <!-- Thanks for using https://jar-download.com -->
 
 	</dependencies>
+	<repositories>
+        <repository>
+            <id>repo.egovernments.org</id>
+            <name>eGov ERP Releases Repository</name>
+            <url>https://nexus-repo.digit.org/nexus/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>repo.egovernments.org.snapshots</id>
+            <name>eGov ERP Releases Repository</name>
+            <url>https://nexus-repo.digit.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>repo.egovernments.org.public</id>
+            <name>eGov Public Repository Group</name>
+            <url>https://nexus-repo.digit.org/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
 
 	<build>
 		<plugins>

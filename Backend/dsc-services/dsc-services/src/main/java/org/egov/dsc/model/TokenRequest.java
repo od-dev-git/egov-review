@@ -20,6 +20,7 @@ public class TokenRequest {
 	private String tennantId;
 	
     @NotNull
+    @Valid
     @JsonProperty("RequestInfo")
     private RequestInfo requestInfo;
     

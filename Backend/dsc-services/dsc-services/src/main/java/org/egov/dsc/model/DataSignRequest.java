@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
@@ -27,8 +28,9 @@ public class DataSignRequest {
 	private String tokenDisplayName;
 	
     
-    @JsonProperty("keyStorePassPhrase")
-	private String keyStorePassPhrase;
+    @JsonProperty(value = "keyStorePassPhrase", access = JsonProperty.Access.WRITE_ONLY)
+    @ToString.Exclude
+    private String keyStorePassPhrase;
 	
     
     @JsonProperty("keyId")

@@ -7,6 +7,8 @@
 
 package org.egov.dsc.emas.ws.ds;
 
+import org.egov.tracer.model.CustomException;
+
 public class DSAuthenticateWSImplServiceSoapBindingStub extends org.apache.axis.client.Stub implements DSAuthenticateWS {
     private java.util.Vector cachedSerClasses = new java.util.Vector();
     private java.util.Vector cachedSerQNames = new java.util.Vector();
@@ -242,7 +244,8 @@ public class DSAuthenticateWSImplServiceSoapBindingStub extends org.apache.axis.
             try {
                 return (java.lang.String) _resp;
             } catch (java.lang.Exception _exception) {
-                return (java.lang.String) org.apache.axis.utils.JavaUtils.convert(_resp, java.lang.String.class);
+//                return (java.lang.String) org.apache.axis.utils.JavaUtils.convert(_resp, java.lang.String.class);
+            	throw new CustomException("ERROR", "(java.lang.String) org.apache.axis.utils.JavaUtils.convert(_resp, java.lang.String.class)");
             }
         }
   } catch (org.apache.axis.AxisFault axisFaultException) {
