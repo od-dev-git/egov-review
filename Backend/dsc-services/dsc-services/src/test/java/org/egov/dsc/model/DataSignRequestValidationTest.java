@@ -48,12 +48,12 @@ class DataSignRequestValidationTest {
 	}
 
 	@Test
-	void pdfSignRequiresEchoedTempFileAndUploadFields() {
+	void pdfSignRequiresOpaqueSigningIdAndUploadFields() {
 		DataSignRequest request = complete();
-		request.setTempFilePath(null);
+		request.setSigId(null);
 		request.setModuleName(" ");
 
-		assertEquals(set("moduleName", "tempFilePath"), violations(request, DataSignRequest.PdfSign.class));
+		assertEquals(set("moduleName", "sigId"), violations(request, DataSignRequest.PdfSign.class));
 	}
 
 	@Test
@@ -100,7 +100,7 @@ class DataSignRequestValidationTest {
 		request.setFileName("doc");
 		request.setTenantId("od");
 		request.setModuleName("module");
-		request.setTempFilePath("/opt/egov/DS/Temp/x.sig");
+		request.setSigId("550e8400-e29b-41d4-a716-446655440000");
 		return request;
 	}
 }

@@ -43,21 +43,16 @@ package org.egov.dsc.web.controller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
-import java.time.Duration;
-import java.time.Instant;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
@@ -81,6 +76,7 @@ import org.egov.dsc.model.StorageResponse;
 import org.egov.dsc.model.TokenInputResponse;
 import org.egov.dsc.model.TokenRequest;
 import org.egov.dsc.model.TokenResponse;
+import org.egov.dsc.service.PdfSigningArtifactStore;
 import org.egov.dsc.web.contract.factory.ResponseInfoFactory;
 import org.egov.tracer.model.CustomException;
 import org.slf4j.Logger;
@@ -131,13 +127,10 @@ public class DscController {
 	private static final String LICENSE_FILE_PATH = "/OdishaUrban.lic";
 	private static final String EMAS_STATUS_SUCCESS = "Success";
 
-	private static final Duration STALE_TEMP_FILE_AGE = Duration.ofHours(1);
-
 	@PostConstruct
 	public void initDirectoriesAndValidateLicense() throws Exception {
 		File logDir = new File(logPath);
 		File licDir = new File(licPath);
-		File tempDir = new File(tempPath);
 
 		if (!logDir.exists() && !logDir.mkdirs()) {
 			log.warn("Failed to create log directory: {}", logPath);
@@ -145,12 +138,6 @@ public class DscController {
 		if (!licDir.exists() && !licDir.mkdirs()) {
 			log.warn("Failed to create license directory: {}", licPath);
 		}
-		if (!tempDir.exists() && !tempDir.mkdirs()) {
-			log.warn("Failed to create temp directory: {}", tempPath);
-		}
-
-		purgeStaleFiles(Paths.get(tempFilesDir), STALE_TEMP_FILE_AGE);
-
 		File licenseFile = new File(licPath + LICENSE_FILE_PATH);
 		if (!licenseFile.exists()) {
 			log.error("CRITICAL: License file not found at path: {}", licenseFile.getAbsolutePath());
@@ -160,43 +147,17 @@ public class DscController {
 		log.info("Successfully initialized directories and verified license file.");
 	}
 
-	/**
-	 * Deletes regular files in {@code dir} last modified before {@code olderThan} ago.
-	 * Best effort: never throws, so it cannot block startup.
-	 */
-	private void purgeStaleFiles(Path dir, Duration olderThan) {
-		if (!Files.isDirectory(dir)) {
-			return;
-		}
-		Instant cutoff = Instant.now().minus(olderThan);
-		int deleted = 0;
-		try (DirectoryStream<Path> files = Files.newDirectoryStream(dir)) {
-			for (Path file : files) {
-				try {
-					if (Files.isRegularFile(file) && Files.getLastModifiedTime(file).toInstant().isBefore(cutoff)
-							&& Files.deleteIfExists(file)) {
-						deleted++;
-					}
-				} catch (IOException e) {
-					log.warn("Failed to delete stale temp file: {}", file, e);
-				}
-			}
-		} catch (Exception e) {
-			log.warn("Failed to purge stale temp files in: {}", dir, e);
-		}
-		log.info("Purged {} stale temp file(s) from {}", deleted, dir);
-	}
-
 	@Autowired
 	private ApplicationProperties applicationProperties;
+
+	@Autowired
+	private PdfSigningArtifactStore pdfSigningArtifactStore;
 
 	@Autowired
 	private RestTemplate restTemplate;
 
 	private String logPath = System.getProperty("user.dir") + "/DS/Log";
-	private String tempPath = System.getProperty("user.dir") + "/" + "DS/Temp";
 	private String licPath = System.getProperty("user.dir") + "/" + "DS/Lic";
-	private String tempFilesDir = "/DS/TempFiles/";
 
 	
 	private final java.util.Queue<emBridge> bridgePool = new java.util.concurrent.ConcurrentLinkedQueue<>();
@@ -213,6 +174,17 @@ public class DscController {
 	private void releaseBridge(emBridge bridge) {
 		if (bridge != null) {
 			bridgePool.offer(bridge);
+		}
+	}
+
+	private void cleanupPdfSigningSession(String sigId, String correlationId) {
+		if (sigId == null) {
+			return;
+		}
+		try {
+			pdfSigningArtifactStore.deleteSession(sigId);
+		} catch (IOException e) {
+			log.warn("[correlationId={}] Failed to delete PDF signing session", correlationId, e);
 		}
 	}
 
@@ -476,18 +448,20 @@ public class DscController {
 				return getErrorDataSignResponse(response, null, dataSignRequest.getRequestInfo(),
 						applicationProperties.getDSC_ERR_07(), null, HttpStatus.BAD_REQUEST);
 			}
+			if (responseDataPKCSSign == null || responseDataPKCSSign.getSignedText() == null
+					|| responseDataPKCSSign.getSignedText().trim().isEmpty()) {
+				log.error("[correlationId={}] emBridge returned no signed text", correlationId);
+				return getErrorDataSignResponse(response, null, dataSignRequest.getRequestInfo(),
+						applicationProperties.getDSC_ERR_07(), null, HttpStatus.BAD_GATEWAY);
+			}
 			// register
 			try {
-				if (responseDataPKCSSign != null) {
-					if (responseDataPKCSSign.getSignedText() != null) {
-						response = populateRegisterSoapCall(userId,
-								dataSignRequest.getChannelId(), responseDataPKCSSign.getSignedText(), correlationId);
-						if (!isEmasSuccess(response)) {
-							// eMAS rejected the registration; its reply is the eMudhra error code
-							return getErrorDataSignResponse(response, null, dataSignRequest.getRequestInfo(),
-									null, response, HttpStatus.BAD_REQUEST);
-						}
-					}
+				response = populateRegisterSoapCall(userId, dataSignRequest.getChannelId(),
+						responseDataPKCSSign.getSignedText(), correlationId);
+				if (!isEmasSuccess(response)) {
+					// eMAS rejected the registration; its reply is the eMudhra error code
+					return getErrorDataSignResponse(response, null, dataSignRequest.getRequestInfo(),
+							null, response, HttpStatus.BAD_REQUEST);
 				}
 
 			} catch (DSCException e) {
@@ -499,7 +473,7 @@ public class DscController {
 			releaseBridge(bridge);
 		}
 
-		return getSuccessDataSignResponse(response, null, dataSignRequest.getRequestInfo(), null, null);
+		return buildDataSignResponse(response, null, dataSignRequest.getRequestInfo(), null, null);
 
 	}
 
@@ -532,48 +506,66 @@ public class DscController {
 
 	private ResponseEntity<TokenResponse> getSuccessTokenResponse(List<String> tokens, RequestInfo requestInfo,
 			String dscErrorCode, String emudhraErrorCode) {
-		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo, true);
-		responseInfo.setStatus(HttpStatus.OK.toString());
+		HttpStatus status = hasError(dscErrorCode, emudhraErrorCode) ? HttpStatus.BAD_GATEWAY : HttpStatus.OK;
+		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo,
+				status == HttpStatus.OK);
+		responseInfo.setStatus(status.toString());
 
 		TokenResponse tokenResponse = new TokenResponse(responseInfo, tokens, dscErrorCode, emudhraErrorCode);
-		return new ResponseEntity<>(tokenResponse, HttpStatus.OK);
+		return new ResponseEntity<>(tokenResponse, status);
 	}
 
 	private ResponseEntity<TokenInputResponse> getSuccessTokenInputResponse(Request data, DetailRequestPojo input,
 			RequestInfo requestInfo) {
-		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo, true);
-		responseInfo.setStatus(HttpStatus.OK.toString());
 		if (data != null && data.getEncryptedData() != null) {
 			input.setEncryptedRequest(data.getEncryptedData());
 		}
 		if (data != null && data.getEncryptionKeyID() != null) {
 			input.setEncryptionKeyId(data.getEncryptionKeyID());
 		}
-		if (data != null && data.getErrorCode() != null) {
+		if (data != null && hasError(data.getErrorCode())) {
 			input.setEmudhraErrorCode(data.getErrorCode() + " - " + data.getErrorMsg());
 		}
+		HttpStatus status = hasError(input.getDscErrorCode(), input.getEmudhraErrorCode())
+				? HttpStatus.BAD_GATEWAY : HttpStatus.OK;
+		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo,
+				status == HttpStatus.OK);
+		responseInfo.setStatus(status.toString());
 		TokenInputResponse tokenResponse = new TokenInputResponse(responseInfo, input);
-		return new ResponseEntity<>(tokenResponse, HttpStatus.OK);
+		return new ResponseEntity<>(tokenResponse, status);
 	}
 
 	private ResponseEntity<CertificateResponse> getSuccessCertResponse(List<CertificateResponsePojo> certs,
 			RequestInfo requestInfo, String dscErrorCode, String emudhraErrorCode) {
-		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo, true);
-		responseInfo.setStatus(HttpStatus.OK.toString());
+		HttpStatus status = hasError(dscErrorCode, emudhraErrorCode) ? HttpStatus.BAD_GATEWAY : HttpStatus.OK;
+		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo,
+				status == HttpStatus.OK);
+		responseInfo.setStatus(status.toString());
 
 		CertificateResponse certificateResponse = new CertificateResponse(responseInfo, certs, dscErrorCode,
 				emudhraErrorCode);
-		return new ResponseEntity<>(certificateResponse, HttpStatus.OK);
+		return new ResponseEntity<>(certificateResponse, status);
 	}
 
-	private ResponseEntity<DataSignResponse> getSuccessDataSignResponse(String responseString, String fileStoreId,
+	ResponseEntity<DataSignResponse> buildDataSignResponse(String responseString, String fileStoreId,
 			RequestInfo requestInfo, String dscErrorCode, String emudhraErrorCode) {
-		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo, true);
-		responseInfo.setStatus(HttpStatus.OK.toString());
+		HttpStatus status = hasError(dscErrorCode, emudhraErrorCode) ? HttpStatus.BAD_GATEWAY : HttpStatus.OK;
+		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo,
+				status == HttpStatus.OK);
+		responseInfo.setStatus(status.toString());
 
 		DataSignResponse datasign = new DataSignResponse(responseInfo, responseString, fileStoreId, dscErrorCode,
 				emudhraErrorCode);
-		return new ResponseEntity<>(datasign, HttpStatus.OK);
+		return new ResponseEntity<>(datasign, status);
+	}
+
+	private boolean hasError(String... values) {
+		for (String value : values) {
+			if (value != null && !value.trim().isEmpty()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private ResponseEntity<DataSignResponse> getErrorDataSignResponse(String responseString, String fileStoreId,
@@ -592,16 +584,15 @@ public class DscController {
 		RequestInfo requestInfo = dataSignRequest.getRequestInfo();
 		String correlationId = (requestInfo != null) ? requestInfo.getMsgId() : "N/A";
 		emBridge bridge = null;
-		File tempFile = new File(tempPath);
 		String pdfStr = "";
 		List<emBridgeSignerInput> inputs = new ArrayList<>();
 		PKCSBulkPdfHashSignRequest pKCSBulkPdfHashSignRequest = new PKCSBulkPdfHashSignRequest();
 		Request bulkPKCSSignRequest = null;
 		String tempFilePath = null;
+		String sigId = null;
+		boolean keepSigSession = false;
 		DetailRequestPojo pojo = new DetailRequestPojo();
-		//Added to set file permission
 		File pdfSig = null;
-		Set<PosixFilePermission> pdfSigPermissions = null;
 		try {
 			bridge = acquireBridge();
 		} catch (IOException e) {
@@ -634,7 +625,11 @@ public class DscController {
 						applicationProperties.getPdfProprty4(), false);
 				inputs.add(input);
 				pKCSBulkPdfHashSignRequest.setBulkInput(inputs);
-				pKCSBulkPdfHashSignRequest.setTempFolder(tempFile.getCanonicalPath());
+				sigId = pdfSigningArtifactStore.createSession(
+						String.valueOf(dataSignRequest.getRequestInfo().getUserInfo().getId()),
+						dataSignRequest.getTenantId(), dataSignRequest.getChannelId());
+				pKCSBulkPdfHashSignRequest.setTempFolder(
+						pdfSigningArtifactStore.getSessionDirectory(sigId).toFile().getCanonicalPath());
 				pKCSBulkPdfHashSignRequest.setKeyStoreDisplayName(dataSignRequest.getTokenDisplayName());
 				pKCSBulkPdfHashSignRequest.setKeyStorePassphrase(dataSignRequest.getKeyStorePassPhrase());
 				pKCSBulkPdfHashSignRequest.setKeyId(dataSignRequest.getKeyId());
@@ -656,7 +651,8 @@ public class DscController {
 					bulkPKCSSignRequest = bridge.encPKCSBulkSign(pKCSBulkPdfHashSignRequest);
 
 					if (bulkPKCSSignRequest != null && bulkPKCSSignRequest.getTempFilePath() != null) {
-						tempFilePath = bulkPKCSSignRequest.getTempFilePath();
+						tempFilePath = pdfSigningArtifactStore
+								.validateGeneratedSig(sigId, bulkPKCSSignRequest.getTempFilePath()).toString();
 						pdfSig = new File(tempFilePath);
 
 						if (pdfSig.exists()) {
@@ -686,7 +682,6 @@ public class DscController {
 
 				log.debug("[correlationId={}] Bulk Sign Encrypted Data: {}", correlationId, bulkPKCSSignRequest.getEncryptedData());
 				log.debug("[correlationId={}] Bulk Sign Encrypted Key ID: {}", correlationId, bulkPKCSSignRequest.getEncryptionKeyID());
-				log.debug("[correlationId={}] Temp File Path: {}", correlationId, tempFilePath);// if contains .sig
 			} catch (Exception e) {
 				pojo.setDscErrorCode(applicationProperties.getDSC_ERR_10());
 				log.error("Bulk PDF sign request failed for correlationId={}", correlationId, e);
@@ -694,40 +689,30 @@ public class DscController {
 			}
 
 			pojo.setFileName(dataSignRequest.getFileName());
-			pojo.setTempFilePath(tempFilePath);
-			if (!(tempFilePath != null && tempFilePath.contains(".sig"))) {
+			if (tempFilePath == null || !tempFilePath.endsWith(".sig")) {
 				pojo.setDscErrorCode(applicationProperties.getDSC_ERR_11());
 				return getSuccessTokenInputResponse(bulkPKCSSignRequest, pojo, dataSignRequest.getRequestInfo());
 			}
-			else
-			{
-				log.debug("[correlationId={}] File permission started for: {}", correlationId, tempFilePath);
-				try {
-
-					pdfSig.setExecutable(true, false);
-					pdfSig.setReadable(true, false);
-					pdfSig.setWritable(true, false);
-					pdfSigPermissions = new HashSet<PosixFilePermission>();
-					pdfSigPermissions.add(PosixFilePermission.OWNER_READ);
-					pdfSigPermissions.add(PosixFilePermission.OWNER_WRITE);
-					pdfSigPermissions.add(PosixFilePermission.OWNER_EXECUTE);
-					pdfSigPermissions.add(PosixFilePermission.GROUP_READ);
-					pdfSigPermissions.add(PosixFilePermission.GROUP_WRITE);
-					pdfSigPermissions.add(PosixFilePermission.GROUP_EXECUTE);
-					pdfSigPermissions.add(PosixFilePermission.OTHERS_READ);
-					pdfSigPermissions.add(PosixFilePermission.OTHERS_WRITE);
-					pdfSigPermissions.add(PosixFilePermission.OTHERS_EXECUTE);
-					Files.setPosixFilePermissions(Paths.get(tempFilePath), pdfSigPermissions);
-					log.debug("[correlationId={}] File permission set successfully", correlationId);
-				} catch (Exception e) {
-					log.error("Failed to set signed PDF file permissions for correlationId={}", correlationId, e);
-					pojo.setDscErrorCode(applicationProperties.getDSC_ERR_27());
-					return getSuccessTokenInputResponse(bulkPKCSSignRequest, pojo, dataSignRequest.getRequestInfo());
-				}
+			try {
+				Files.setPosixFilePermissions(pdfSig.toPath(),
+						EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
+			} catch (Exception e) {
+				log.error("Failed to set signed PDF file permissions for correlationId={}", correlationId, e);
+				pojo.setDscErrorCode(applicationProperties.getDSC_ERR_27());
+				return getSuccessTokenInputResponse(bulkPKCSSignRequest, pojo, dataSignRequest.getRequestInfo());
 			}
 
+			pojo.setSigId(sigId);
+			keepSigSession = true;
 			return getSuccessTokenInputResponse(bulkPKCSSignRequest, pojo, dataSignRequest.getRequestInfo());
 		} finally {
+			if (sigId != null && !keepSigSession) {
+				try {
+					pdfSigningArtifactStore.deleteSession(sigId);
+				} catch (IOException e) {
+					log.warn("[correlationId={}] Failed to clean up PDF signing session", correlationId, e);
+				}
+			}
 			releaseBridge(bridge);
 		}
 	}
@@ -792,11 +777,24 @@ public class DscController {
 		// RequestInfo.userInfo.id is guaranteed by DataSignRequest validation
 		Long userId = requestInfo.getUserInfo().getId();
 		String correlationId = (requestInfo != null) ? requestInfo.getMsgId() : "N/A";
+		String sigId = dataSignRequest.getSigId();
+		Path sigPath;
+		try {
+			sigPath = pdfSigningArtifactStore.resolveSigFile(sigId, String.valueOf(userId),
+					dataSignRequest.getTenantId(), dataSignRequest.getChannelId());
+		} catch (SecurityException e) {
+			log.warn("[correlationId={}] PDF signing session ownership check failed", correlationId);
+			return getErrorDataSignResponse("", null, requestInfo, applicationProperties.getDSC_ERR_28(), null,
+					HttpStatus.FORBIDDEN);
+		} catch (IOException | IllegalArgumentException e) {
+			log.warn("[correlationId={}] Invalid or expired PDF signing session", correlationId, e);
+			return getErrorDataSignResponse("", null, requestInfo, applicationProperties.getDSC_ERR_28(), null,
+					HttpStatus.BAD_REQUEST);
+		}
 
 		boolean dsc = false;
 		emBridge bridge = null;
-		String tempFilePath = dataSignRequest.getTempFilePath();
-		File tempSigFile = new File(tempFilePath);
+		String tempFilePath = sigPath.toString();
 		ResponseDataPKCSBulkSign apiResponse = null;
 		String fileId = null;
 		String result = "";
@@ -804,7 +802,8 @@ public class DscController {
 			bridge = acquireBridge();
 		} catch (IOException e) {
 			log.error("Failed to initialize DSC bridge for pdfSign operation for correlationId={}", correlationId, e);
-			return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(),
+			cleanupPdfSigningSession(sigId, correlationId);
+			return buildDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(),
 					applicationProperties.getDSC_ERR_01(), null);
 		}
 		try {
@@ -813,15 +812,15 @@ public class DscController {
 				log.debug("[correlationId={}] decPKCSBulkSign error code: {}", correlationId, apiResponse.getErrorCode());
 			} catch (Exception e) {
 				log.error("Bulk PDF sign decryption failed for correlationId={}", correlationId, e);
-				return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(),
+				return buildDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(),
 						applicationProperties.getDSC_ERR_18(), null);
 			}
 			if (apiResponse != null && apiResponse.getErrorCode() != null) {
-				return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), null,
+				return buildDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), null,
 						apiResponse.getErrorCode() + " - " + apiResponse.getErrorMsg());
 			}
 			try {
-				SignedPdfResult pdfResult = populateSignedPdfFileStoreId(apiResponse, tempFilePath, dataSignRequest.getFileName(),
+				SignedPdfResult pdfResult = populateSignedPdfFileStoreId(apiResponse, dataSignRequest.getFileName(),
 						userId, dataSignRequest.getTenantId(),
 						dataSignRequest.getModuleName(), dataSignRequest.getChannelId(), dsc, correlationId);
 
@@ -832,10 +831,10 @@ public class DscController {
 				log.error("Signed PDF result processing failed for correlationId={}", correlationId, e);
 				dsc = e.isDsc();
 				if (dsc) {
-					return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), e.getMessage(),
+					return buildDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), e.getMessage(),
 							null);
 				} else {
-					return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), null,
+					return buildDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), null,
 							e.getMessage());
 				}
 
@@ -847,23 +846,20 @@ public class DscController {
 			} else {
 				fileId = null;
 				result = "Failure";
-				return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(),
+				return buildDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(),
 						applicationProperties.getDSC_ERR_26(), null);
 			}
-			return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), null, null);
+			return buildDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), null, null);
 		} finally {
-			// The .sig from _pdfSignInput is single-use; remove it on every outcome, including unchecked exceptions
-			if (tempSigFile.exists() && !tempSigFile.delete()) {
-				log.warn("[correlationId={}] Failed to delete temp sig file: {}", correlationId, tempFilePath);
-			}
+			cleanupPdfSigningSession(sigId, correlationId);
 			releaseBridge(bridge);
 		}
 	}
 
-	private SignedPdfResult populateSignedPdfFileStoreId(ResponseDataPKCSBulkSign apiResponse, String serverTempPath,
-		String fileName, Long userId, String tenantId, String moduleName, String channelId, boolean dsc, String correlationId) throws DSCException {
+	private SignedPdfResult populateSignedPdfFileStoreId(ResponseDataPKCSBulkSign apiResponse, String fileName,
+			Long userId, String tenantId, String moduleName, String channelId, boolean dsc, String correlationId)
+			throws DSCException {
 		String fileStoreId = "0";
-		File tempFile = new File(serverTempPath);
 		boolean check = false;
 		byte[] signedDocBytes = null;
 
@@ -907,14 +903,6 @@ public class DscController {
 				throw new DSCException(applicationProperties.getDSC_ERR_21(), dsc);
 			}
 		}
-		try {
-			//tempFile.delete(); //commented for testing purpose on dev
-		} catch (Exception e) {
-			dsc = true;
-			log.error("Failed to cleanup temp file for correlationId={}", correlationId, e);
-			throw new DSCException(applicationProperties.getDSC_ERR_25(), dsc);
-		}
-
 		return new SignedPdfResult(fileStoreId, dsc);
 	}
 
@@ -1070,6 +1058,9 @@ public class DscController {
 			if (isEmasSuccess(response)) {
 				result = authenticateWS.deregister(userId + "~" + channel, "degistration");
 				log.debug("[correlationId={}] eMAS deregister result: {}", correlationId, result);
+				if (!isEmasSuccess(result)) {
+					throw new DSCException("eMAS rejected deregistration");
+				}
 			} else {
 				throw new DSCException("Error in deregistration api from Emas" + response);
 			}
@@ -1083,11 +1074,13 @@ public class DscController {
 	
 	private ResponseEntity<DataSignResponse> getSuccessDataSignDeregisterResponse(String responseString,
 			RequestInfo requestInfo, String dscErrorCode, String emudhraErrorCode) {
-		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo, true);
-		responseInfo.setStatus(HttpStatus.OK.toString());
+		HttpStatus status = hasError(dscErrorCode, emudhraErrorCode) ? HttpStatus.BAD_GATEWAY : HttpStatus.OK;
+		final ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(requestInfo,
+				status == HttpStatus.OK);
+		responseInfo.setStatus(status.toString());
 
 		DataSignResponse datasign = new DataSignResponse(responseInfo, responseString, null, dscErrorCode,
 				emudhraErrorCode);
-		return new ResponseEntity<>(datasign, HttpStatus.OK);
+		return new ResponseEntity<>(datasign, status);
 	}
 }

@@ -21,8 +21,8 @@ public class DetailRequestPojo {
 	@JsonProperty("fileName")
 	private String fileName;
 	
-	@JsonProperty("tempFilePath")
-	private String tempFilePath;
+	@JsonProperty("sigId")
+	private String sigId;
 	
 	@JsonProperty("dscErrorCode")
 	private String dscErrorCode;

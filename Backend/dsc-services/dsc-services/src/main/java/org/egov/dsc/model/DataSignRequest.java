@@ -6,6 +6,7 @@ import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.groups.Default;
 
 import org.egov.common.contract.request.RequestInfo;
@@ -77,8 +78,9 @@ public class DataSignRequest {
     private String moduleName;
 
     @NotBlank(groups = PdfSign.class)
-    @JsonProperty("tempFilePath")
-	private String tempFilePath;
+    @Pattern(regexp = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", groups = PdfSign.class)
+    @JsonProperty("sigId")
+	private String sigId;
 
 	/**
 	 * The signer is always taken from RequestInfo.userInfo, never from the body. A null

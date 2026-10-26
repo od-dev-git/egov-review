@@ -15,12 +15,10 @@ WORKDIR /opt/egov
 # Create all required DSC directories
 RUN mkdir -p \
         /opt/egov/DS/Log \
-        /opt/egov/DS/Temp \
         /opt/egov/DS/Lic \
-        /opt/egov/DS/TempFiles \
-        /DS/TempFiles \
+        /mnt/dsc-signatures \
     && chmod -R 777 /opt/egov/DS \
-    && chmod -R 777 /DS/TempFiles
+    && chmod 700 /mnt/dsc-signatures
 
 # Copy license
 COPY OdishaUrban.lic /opt/egov/DS/Lic/OdishaUrban.lic
