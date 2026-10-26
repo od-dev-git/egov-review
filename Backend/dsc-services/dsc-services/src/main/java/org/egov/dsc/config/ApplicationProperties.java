@@ -65,6 +65,15 @@ public class ApplicationProperties {
     @Value("${dsc.pdf.embridge.property.four}")
     private String pdfProprty4;
     
+    @Value("${dsc.pdf.sig.max-attempts:3}")
+    private int sigMaxAttempts;
+
+    @Value("${dsc.pdf.sig.initial-backoff-ms:100}")
+    private long sigInitialBackoffMs;
+
+    @Value("${dsc.pdf.sig.max-backoff-ms:2000}")
+    private long sigMaxBackoffMs;
+
     @Value("${egov.filestore.service.endpoint}")
     private String egovFileStoreSerHost;
     

@@ -41,16 +41,15 @@
 package org.egov.dsc.web.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
+import java.time.Duration;
+import java.time.Instant;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,14 +58,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.io.IOUtils;
 import org.egov.common.contract.request.RequestInfo;
 import org.egov.common.contract.response.ResponseInfo;
 import org.egov.dsc.config.ApplicationProperties;
@@ -99,6 +95,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -106,8 +103,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import emh.Enum.ContentType;
 import emh.Enum.Token_Status;
@@ -134,13 +129,15 @@ public class DscController {
 	private static final Logger log = LoggerFactory.getLogger(DscController.class);
 	private static final String DEFAULT_PDF_SIGNATURE_COORDINATES = "All-215,32,325,72";
 	private static final String LICENSE_FILE_PATH = "/OdishaUrban.lic";
+	private static final String EMAS_STATUS_SUCCESS = "Success";
+
+	private static final Duration STALE_TEMP_FILE_AGE = Duration.ofHours(1);
 
 	@PostConstruct
 	public void initDirectoriesAndValidateLicense() throws Exception {
 		File logDir = new File(logPath);
 		File licDir = new File(licPath);
 		File tempDir = new File(tempPath);
-		File tempFilesDirFile = new File(tempFilesDir);
 
 		if (!logDir.exists() && !logDir.mkdirs()) {
 			log.warn("Failed to create log directory: {}", logPath);
@@ -151,9 +148,8 @@ public class DscController {
 		if (!tempDir.exists() && !tempDir.mkdirs()) {
 			log.warn("Failed to create temp directory: {}", tempPath);
 		}
-		if (!tempFilesDirFile.exists() && !tempFilesDirFile.mkdirs()) {
-			log.warn("Failed to create temp files directory: {}", tempFilesDir);
-		}
+
+		purgeStaleFiles(Paths.get(tempFilesDir), STALE_TEMP_FILE_AGE);
 
 		File licenseFile = new File(licPath + LICENSE_FILE_PATH);
 		if (!licenseFile.exists()) {
@@ -162,6 +158,33 @@ public class DscController {
 		}
 
 		log.info("Successfully initialized directories and verified license file.");
+	}
+
+	/**
+	 * Deletes regular files in {@code dir} last modified before {@code olderThan} ago.
+	 * Best effort: never throws, so it cannot block startup.
+	 */
+	private void purgeStaleFiles(Path dir, Duration olderThan) {
+		if (!Files.isDirectory(dir)) {
+			return;
+		}
+		Instant cutoff = Instant.now().minus(olderThan);
+		int deleted = 0;
+		try (DirectoryStream<Path> files = Files.newDirectoryStream(dir)) {
+			for (Path file : files) {
+				try {
+					if (Files.isRegularFile(file) && Files.getLastModifiedTime(file).toInstant().isBefore(cutoff)
+							&& Files.deleteIfExists(file)) {
+						deleted++;
+					}
+				} catch (IOException e) {
+					log.warn("Failed to delete stale temp file: {}", file, e);
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Failed to purge stale temp files in: {}", dir, e);
+		}
+		log.info("Purged {} stale temp file(s) from {}", deleted, dir);
 	}
 
 	@Autowired
@@ -235,7 +258,7 @@ public class DscController {
 
 	@RequestMapping(value = "/_getTokens", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<TokenResponse> tokens(@Valid @RequestBody TokenRequest tokenRequest) {
+	public ResponseEntity<TokenResponse> tokens(@Validated(TokenRequest.Decrypt.class) @RequestBody TokenRequest tokenRequest) {
 		RequestInfo requestInfo = tokenRequest.getRequestInfo();
 		String correlationId = (requestInfo != null) ? requestInfo.getMsgId() : "N/A";
 		List<String> tokens = new ArrayList<String>();
@@ -259,7 +282,7 @@ public class DscController {
 
 				if (responseDataListProviderToken.getTokens() != null) {
 					for (ProviderToken token : responseDataListProviderToken.getTokens()) {
-						log.debug(token.getKeyStoreDisplayName());
+						log.debug("[correlationId={}] Token: {}", correlationId, token.getKeyStoreDisplayName());
 						tokens.add(token.getKeyStoreDisplayName());
 					}
 				}
@@ -311,7 +334,7 @@ public class DscController {
 
 	@RequestMapping(value = "/_getCertificate", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<CertificateResponse> certa(@Valid @RequestBody CertificateRequest certificateRequest) {
+	public ResponseEntity<CertificateResponse> certa(@Validated(CertificateRequest.Decrypt.class) @RequestBody CertificateRequest certificateRequest) {
 		RequestInfo requestInfo = certificateRequest.getRequestInfo();
 		String correlationId = (requestInfo != null) ? requestInfo.getMsgId() : "N/A";
 		emBridge bridge = null;
@@ -369,12 +392,10 @@ public class DscController {
 
 	@RequestMapping(value = "/_dataSignInput", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<TokenInputResponse> dataSignInput(@Valid @RequestBody DataSignRequest dataSignRequest) {
+	public ResponseEntity<TokenInputResponse> dataSignInput(@Validated(DataSignRequest.DataSignInput.class) @RequestBody DataSignRequest dataSignRequest) {
 		RequestInfo requestInfo = dataSignRequest.getRequestInfo();
-		if (requestInfo == null || dataSignRequest.getRequestInfo().getUserInfo() == null) {
-        	throw new IllegalArgumentException("Invalid request payload: Missing user information");
-    	}
-    	Long userId = dataSignRequest.getRequestInfo().getUserInfo().getId();
+		// RequestInfo.userInfo.id is guaranteed by DataSignRequest validation
+		Long userId = requestInfo.getUserInfo().getId();
 		String correlationId = (requestInfo != null) ? requestInfo.getMsgId() : "N/A";
 
 		emBridge bridge = null;
@@ -430,24 +451,21 @@ public class DscController {
 
 	@RequestMapping(value = "/_dataSign", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<DataSignResponse> dataSign(@Valid @RequestBody DataSignRequest dataSignRequest) {
+	public ResponseEntity<DataSignResponse> dataSign(@Validated(DataSignRequest.DataSign.class) @RequestBody DataSignRequest dataSignRequest) {
 		RequestInfo requestInfo = dataSignRequest.getRequestInfo();
-		if (requestInfo == null || dataSignRequest.getRequestInfo().getUserInfo() == null) {
-        	throw new IllegalArgumentException("Invalid request payload: Missing user information");
-    	}
-    	Long userId = dataSignRequest.getRequestInfo().getUserInfo().getId();
+		// RequestInfo.userInfo.id is guaranteed by DataSignRequest validation
+		Long userId = requestInfo.getUserInfo().getId();
 		String correlationId = (requestInfo != null) ? requestInfo.getMsgId() : "N/A";
 
 		emBridge bridge = null;
-		String repsonse = "";
+		String response = "";
 		ResponseDataPKCSSign responseDataPKCSSign = null;
-		String emudhraErrorCode = "";
 		try {
 			bridge = acquireBridge();
 		} catch (IOException e) {
 			log.error("[correlationId={}] Directory initialization failed in dataSign", correlationId, e);
-			return getSuccessDataSignResponse(repsonse, null, dataSignRequest.getRequestInfo(),
-					applicationProperties.getDSC_ERR_01(), null);
+			return getErrorDataSignResponse(response, null, dataSignRequest.getRequestInfo(),
+					applicationProperties.getDSC_ERR_01(), null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		try {
@@ -455,32 +473,33 @@ public class DscController {
 				responseDataPKCSSign = bridge.decPKCSSign(dataSignRequest.getResponseData());
 			} catch (EMBLException e) {
 				log.error("[correlationId={}] PKCS decryption failed during emBridge call", correlationId, e);
-				return getSuccessDataSignResponse(repsonse, null, dataSignRequest.getRequestInfo(),
-						applicationProperties.getDSC_ERR_07(), null);
+				return getErrorDataSignResponse(response, null, dataSignRequest.getRequestInfo(),
+						applicationProperties.getDSC_ERR_07(), null, HttpStatus.BAD_REQUEST);
 			}
 			// register
 			try {
 				if (responseDataPKCSSign != null) {
 					if (responseDataPKCSSign.getSignedText() != null) {
-						repsonse = populateRegisterSoapCall(userId,
+						response = populateRegisterSoapCall(userId,
 								dataSignRequest.getChannelId(), responseDataPKCSSign.getSignedText(), correlationId);
-						if (!(repsonse.toLowerCase().contains("success"))) {
-							emudhraErrorCode = repsonse;
-							return getErrorDataSignResponse(repsonse, null, dataSignRequest.getRequestInfo(),
-									null, emudhraErrorCode, HttpStatus.BAD_REQUEST);
+						if (!isEmasSuccess(response)) {
+							// eMAS rejected the registration; its reply is the eMudhra error code
+							return getErrorDataSignResponse(response, null, dataSignRequest.getRequestInfo(),
+									null, response, HttpStatus.BAD_REQUEST);
 						}
 					}
 				}
 
 			} catch (DSCException e) {
-				return getSuccessDataSignResponse(repsonse, null, dataSignRequest.getRequestInfo(),
-						applicationProperties.getDSC_ERR_08(), null);
+				log.error("[correlationId={}] eMAS register call failed in dataSign", correlationId, e);
+				return getErrorDataSignResponse(response, null, dataSignRequest.getRequestInfo(),
+						applicationProperties.getDSC_ERR_08(), null, HttpStatus.BAD_GATEWAY);
 			}
 		} finally {
 			releaseBridge(bridge);
 		}
 
-		return getSuccessDataSignResponse(repsonse, null, dataSignRequest.getRequestInfo(), null, emudhraErrorCode);
+		return getSuccessDataSignResponse(response, null, dataSignRequest.getRequestInfo(), null, null);
 
 	}
 
@@ -489,7 +508,7 @@ public class DscController {
 		DSAuthenticateWS authenticateWS = new DSAuthenticateWSProxy(applicationProperties.getEmasWsUrl());
 		try {
 			result = authenticateWS.register(id + "~" + channel, signedText, "registration", "registration", true);
-			log.info("result after registration ::::" + result);
+			log.debug("[correlationId={}] eMAS register result: {}", correlationId, result);
 		} catch (RemoteException e) {
 			log.error("Register API call failed for correlationId={}", correlationId, e);
 			throw new DSCException("Error in register api from Emas");
@@ -503,7 +522,7 @@ public class DscController {
 		try {
 			authenticateWS = new DSAuthenticateWSProxy(applicationProperties.getEmasWsUrl());
 			result = authenticateWS.generateRandomNumber(id + "~" + channel);
-			log.debug("after result ::::" + result);
+			log.debug("[correlationId={}] eMAS random number result: {}", correlationId, result);
 		} catch (RemoteException e) {
 			log.error("Random number generation failed for correlationId={}", correlationId, e);
 			throw new DSCException("Error in populating random number from Emas");
@@ -569,7 +588,7 @@ public class DscController {
 
 	@RequestMapping(value = "/_pdfSignInput", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<TokenInputResponse> dpdfSignInput(@Valid @RequestBody DataSignRequest dataSignRequest) {
+	public ResponseEntity<TokenInputResponse> dpdfSignInput(@Validated(DataSignRequest.PdfSignInput.class) @RequestBody DataSignRequest dataSignRequest) {
 		RequestInfo requestInfo = dataSignRequest.getRequestInfo();
 		String correlationId = (requestInfo != null) ? requestInfo.getMsgId() : "N/A";
 		emBridge bridge = null;
@@ -625,12 +644,15 @@ public class DscController {
 				return getSuccessTokenInputResponse(bulkPKCSSignRequest, pojo, dataSignRequest.getRequestInfo());
 			}
 
-			int maxRetries = 3;
-			long backoffMillis = 100;
+			// 1 = single attempt (no retry); values below 1 are treated as 1
+			int maxAttempts = Math.max(1, applicationProperties.getSigMaxAttempts());
+			long backoffMillis = Math.max(0, applicationProperties.getSigInitialBackoffMs());
+			long maxBackoffMillis = Math.max(backoffMillis, applicationProperties.getSigMaxBackoffMs());
+			int attempt = 0;
 
 			try {
-				for (int attempt = 1; attempt <= maxRetries; attempt++) {
-					log.debug("Executing embridge call - attempt " + attempt);
+				while (++attempt <= maxAttempts) {
+					log.debug("[correlationId={}] Executing embridge call - attempt {}", correlationId, attempt);
 					bulkPKCSSignRequest = bridge.encPKCSBulkSign(pKCSBulkPdfHashSignRequest);
 
 					if (bulkPKCSSignRequest != null && bulkPKCSSignRequest.getTempFilePath() != null) {
@@ -642,10 +664,12 @@ public class DscController {
 						}
 					}
 
-					if (attempt < maxRetries) {
+					if (attempt < maxAttempts) {
+						log.warn("[correlationId={}] .sig not created on attempt {}/{}, retrying in {} ms", correlationId,
+								attempt, maxAttempts, backoffMillis);
 						try {
 							Thread.sleep(backoffMillis);
-							backoffMillis *= 2;
+							backoffMillis = Math.min(backoffMillis * 2, maxBackoffMillis);
 						} catch (InterruptedException ie) {
 							Thread.currentThread().interrupt();
 							break;
@@ -654,7 +678,8 @@ public class DscController {
 				}
 
 				if (pdfSig == null || !pdfSig.exists()) {
-					log.debug("Retrying temp embridge call - Failed");
+					log.error("[correlationId={}] .sig not created after {} attempt(s)", correlationId,
+							Math.min(attempt, maxAttempts));
 					pojo.setDscErrorCode(applicationProperties.getDSC_ERR_28());
 					return getSuccessTokenInputResponse(bulkPKCSSignRequest, pojo, dataSignRequest.getRequestInfo());
 				}
@@ -676,7 +701,7 @@ public class DscController {
 			}
 			else
 			{
-				log.debug("File permission started for ::: "+tempFilePath);
+				log.debug("[correlationId={}] File permission started for: {}", correlationId, tempFilePath);
 				try {
 
 					pdfSig.setExecutable(true, false);
@@ -693,7 +718,7 @@ public class DscController {
 					pdfSigPermissions.add(PosixFilePermission.OTHERS_WRITE);
 					pdfSigPermissions.add(PosixFilePermission.OTHERS_EXECUTE);
 					Files.setPosixFilePermissions(Paths.get(tempFilePath), pdfSigPermissions);
-					log.debug("File permission set successfully...");
+					log.debug("[correlationId={}] File permission set successfully", correlationId);
 				} catch (Exception e) {
 					log.error("Failed to set signed PDF file permissions for correlationId={}", correlationId, e);
 					pojo.setDscErrorCode(applicationProperties.getDSC_ERR_27());
@@ -708,41 +733,39 @@ public class DscController {
 	}
 
 	/**
-	 * Reads raw PDF bytes from disk (I/O operation).
+	 * Downloads the unsigned PDF from DIGIT filestore. Kept in memory only - no temp
+	 * file, so nothing can leak on disk and the client-supplied fileStoreId never
+	 * becomes part of a filesystem path.
 	 */
 	private byte[] fetchUnsignedPdfBytes(String fileStoreId, String tenantId, String correlationId)
 			throws DSCException {
-
-		File unsignedFile = fetchAsDigitPath(fileStoreId, tenantId, correlationId).toFile();
+		ResponseEntity<byte[]> responseEntity;
 		try {
-			if (!unsignedFile.exists()) {
-				throw new DSCException(applicationProperties.getDSC_ERR_15());
-			}
-
-			try {
-				return Files.readAllBytes(unsignedFile.toPath());
-			} catch (IOException e) {
-				log.error("[correlationId={}] Failed to read PDF file for fileStoreId={}", correlationId, fileStoreId,
-						e);
-				throw new DSCException(applicationProperties.getDSC_ERR_16());
-			}
-		} finally {
-			if (unsignedFile != null && unsignedFile.exists() && !unsignedFile.delete()) {
-				log.warn("[correlationId={}] Failed to delete temp file: {}", correlationId,
-						unsignedFile.getAbsolutePath());
-			}
+			responseEntity = fetchFilesFromDigitService(fileStoreId, tenantId);
+		} catch (Exception e) {
+			log.error("[correlationId={}] Failed to fetch file from DIGIT for fileStoreId={}", correlationId,
+					fileStoreId, e);
+			throw new DSCException(applicationProperties.getDSC_ERR_12());
 		}
+
+		byte[] pdfBytes = (responseEntity != null) ? responseEntity.getBody() : null;
+		if (pdfBytes == null || pdfBytes.length == 0) {
+			log.error("[correlationId={}] Empty file received from DIGIT for fileStoreId={}", correlationId,
+					fileStoreId);
+			throw new DSCException(applicationProperties.getDSC_ERR_15());
+		}
+		return pdfBytes;
 	}
 
 	/**
 	 * Encodes raw PDF byte array to Base64 String (CPU-bound operation).
 	 */
-	private String encodeToBase64(byte[] pdfBytes) {
+	private String encodeToBase64(byte[] pdfBytes, String correlationId) {
 		if (pdfBytes == null || pdfBytes.length == 0) {
 			return null;
 		}
 		String pdfStr = Base64.encodeBase64String(pdfBytes);
-		log.debug("pdfStr.length before sign:::::{}", pdfStr.length());
+		log.debug("[correlationId={}] pdfStr.length before sign: {}", correlationId, pdfStr.length());
 		return pdfStr;
 	}
 
@@ -752,7 +775,7 @@ public class DscController {
 	private String getPdfBytes(String fileStoreId, String tenantId, String correlationId) throws DSCException {
 		try {
 			byte[] pdfBytes = fetchUnsignedPdfBytes(fileStoreId, tenantId, correlationId);
-			return encodeToBase64(pdfBytes);
+			return encodeToBase64(pdfBytes, correlationId);
 		} catch (DSCException e) {
 			throw e;
 		} catch (Exception e) {
@@ -764,12 +787,10 @@ public class DscController {
 
 	@RequestMapping(value = "/_pdfSign", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<DataSignResponse> pdfSign(@Valid @RequestBody DataSignRequest dataSignRequest) {
+	public ResponseEntity<DataSignResponse> pdfSign(@Validated(DataSignRequest.PdfSign.class) @RequestBody DataSignRequest dataSignRequest) {
 		RequestInfo requestInfo = dataSignRequest.getRequestInfo();
-		if (requestInfo == null || dataSignRequest.getRequestInfo().getUserInfo() == null) {
-        	throw new IllegalArgumentException("Invalid request payload: Missing user information");
-    	}
-    	Long userId = dataSignRequest.getRequestInfo().getUserInfo().getId();
+		// RequestInfo.userInfo.id is guaranteed by DataSignRequest validation
+		Long userId = requestInfo.getUserInfo().getId();
 		String correlationId = (requestInfo != null) ? requestInfo.getMsgId() : "N/A";
 
 		boolean dsc = false;
@@ -789,21 +810,13 @@ public class DscController {
 		try {
 			try {
 				apiResponse = bridge.decPKCSBulkSign(dataSignRequest.getResponseData(), tempFilePath);
-				log.debug("apiResponse.getErrorCode() - " + apiResponse.getErrorCode());
+				log.debug("[correlationId={}] decPKCSBulkSign error code: {}", correlationId, apiResponse.getErrorCode());
 			} catch (Exception e) {
-				if(tempSigFile != null)
-				{
-					tempSigFile.delete();
-				}
 				log.error("Bulk PDF sign decryption failed for correlationId={}", correlationId, e);
 				return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(),
 						applicationProperties.getDSC_ERR_18(), null);
 			}
 			if (apiResponse != null && apiResponse.getErrorCode() != null) {
-				if(tempSigFile != null)
-				{
-					tempSigFile.delete();
-				}
 				return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), null,
 						apiResponse.getErrorCode() + " - " + apiResponse.getErrorMsg());
 			}
@@ -816,10 +829,6 @@ public class DscController {
 				dsc = pdfResult.isDsc();
 
 			} catch (DSCException e) {
-				if(tempSigFile != null)
-				{
-					tempSigFile.delete();
-				}
 				log.error("Signed PDF result processing failed for correlationId={}", correlationId, e);
 				dsc = e.isDsc();
 				if (dsc) {
@@ -835,22 +844,18 @@ public class DscController {
 			if (fileId != null && !fileId.isEmpty() && !fileId.equalsIgnoreCase("0")) {
 				result = "Success";
 				log.debug("[correlationId={}] File ID: {}, Result: {}", correlationId, fileId, result);
-				if(tempSigFile != null)
-				{
-					tempSigFile.delete();
-				}
 			} else {
 				fileId = null;
 				result = "Failure";
-				if(tempSigFile != null)
-				{
-					tempSigFile.delete();
-				}
 				return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(),
 						applicationProperties.getDSC_ERR_26(), null);
 			}
 			return getSuccessDataSignResponse(result, fileId, dataSignRequest.getRequestInfo(), null, null);
 		} finally {
+			// The .sig from _pdfSignInput is single-use; remove it on every outcome, including unchecked exceptions
+			if (tempSigFile.exists() && !tempSigFile.delete()) {
+				log.warn("[correlationId={}] Failed to delete temp sig file: {}", correlationId, tempFilePath);
+			}
 			releaseBridge(bridge);
 		}
 	}
@@ -858,18 +863,14 @@ public class DscController {
 	private SignedPdfResult populateSignedPdfFileStoreId(ResponseDataPKCSBulkSign apiResponse, String serverTempPath,
 		String fileName, Long userId, String tenantId, String moduleName, String channelId, boolean dsc, String correlationId) throws DSCException {
 		String fileStoreId = "0";
-		File file = null;
 		File tempFile = new File(serverTempPath);
 		boolean check = false;
 		byte[] signedDocBytes = null;
-		String finalFilePath = null;
-		OutputStream os = null;
 
 		if (apiResponse != null) {
 			if (apiResponse.getBulkSignItems() != null && !apiResponse.getBulkSignItems().isEmpty()) {
 				for (BulkSignOutput doc : apiResponse.getBulkSignItems()) {
-					//log.debug("pdfStr after sign before authentication ::::: " + doc.getSignedData());
-					log.debug("PDF sign completed, Authentication pending::::: ");
+					log.debug("[correlationId={}] PDF sign completed, authentication pending", correlationId);
 					try {
 						boolean[] dscHolder = new boolean[] { dsc };
 						check = checkPdfAuthentication(String.valueOf(userId), doc.getSignedData(), channelId, dscHolder, correlationId);
@@ -882,27 +883,10 @@ public class DscController {
 					if (!check) {
 						break;
 					}
-					try {
-				        String uuid = UUID.randomUUID().toString();
-						signedDocBytes = Base64.decodeBase64(doc.getSignedData());
-						finalFilePath = tempPath + File.separatorChar + uuid + "_" + fileName + "_signed.pdf";
-						file = new File(finalFilePath);
-						os = new FileOutputStream(file);
-						os.write(signedDocBytes);
-						os.close();
-					} catch (Exception e) {
-						try {
-							if(file != null)
-							{
-								file.delete();
-							}
-						} catch (Exception ex) {
-							dsc = true;
-							log.error("Failed to delete temporary signed PDF file after write failure for correlationId={}", correlationId, ex);
-							throw new DSCException(applicationProperties.getDSC_ERR_24(), dsc);
-						}
+					signedDocBytes = Base64.decodeBase64(doc.getSignedData());
+					if (signedDocBytes == null || signedDocBytes.length == 0) {
 						dsc = true;
-						log.error("Failed to write signed PDF to temp file for correlationId={}", correlationId, e);
+						log.error("[correlationId={}] Signed PDF returned by emBridge is empty", correlationId);
 						throw new DSCException(applicationProperties.getDSC_ERR_23(), dsc);
 					}
 
@@ -914,31 +898,14 @@ public class DscController {
 
 		}
 
-		if (file != null) {
+		if (signedDocBytes != null) {
 			try {
-				String finalFileName = fileName + "_signed.pdf";
-				fileStoreId = store(new FileInputStream(file), finalFileName, "application/pdf", moduleName, 
-						tenantId);
-			} catch (Exception e) {
-				try {
-					file.delete();
-				} catch (Exception ex) {
-					dsc = true;
-					log.error("Failed to delete signed PDF after store failure for correlationId={}", correlationId, ex);
-					throw new DSCException(applicationProperties.getDSC_ERR_24(), dsc);
-				}
+				fileStoreId = store(signedDocBytes, fileName + "_signed.pdf", moduleName, tenantId);
+			} catch (DSCException e) {
 				dsc = true;
 				log.error("Failed to store signed PDF file for correlationId={}", correlationId, e);
 				throw new DSCException(applicationProperties.getDSC_ERR_21(), dsc);
 			}
-			try {
-				file.delete();
-			} catch (Exception e) {
-				dsc = true;
-				log.error("Failed to cleanup signed PDF after store failure for correlationId={}", correlationId, e);
-				throw new DSCException(applicationProperties.getDSC_ERR_24(), dsc);
-			}
-
 		}
 		try {
 			//tempFile.delete(); //commented for testing purpose on dev
@@ -951,55 +918,27 @@ public class DscController {
 		return new SignedPdfResult(fileStoreId, dsc);
 	}
 
-	public String store(InputStream fileStream, String fileName, String mimeType, String moduleName, String tenantId)
-			throws DSCException {
-		String fileStoreId = null;
-		DiskFileItem fileItem = null;
-		try {
-			int sizeThreshold = 10 * 1024;
-			fileItem = new DiskFileItem("file", mimeType, false, fileName, sizeThreshold, null);
-
-			try (OutputStream os = fileItem.getOutputStream()) {
-				IOUtils.copy(fileStream, os);
-				os.flush();
-			}
-
-			MultipartFile multipartFile = new CommonsMultipartFile(fileItem);
-			fileStoreId = storeFiles(Arrays.asList(multipartFile), fileName, mimeType, moduleName, false, tenantId);
-		} catch (Exception e) {
-			throw new DSCException(applicationProperties.getDSC_ERR_21());
-		} finally {
-			if (fileItem != null) {
-				fileItem.delete();
-			}
-			if (fileStream != null) {
-				try {
-					fileStream.close();
-				} catch (IOException ignored) {
-				}
-			}
-		}
-		return fileStoreId;
-	}
-
-	private String storeFiles(List<MultipartFile> files, String fileName, String mimeType, String moduleName,
-			boolean deleteFile, String tenantId) throws DSCException {
+	/**
+	 * Uploads the signed PDF to DIGIT filestore straight from memory. The bytes are
+	 * already held in full, so staging them on disk (DiskFileItem/temp file) only
+	 * added I/O and files to clean up.
+	 */
+	private String store(byte[] content, String fileName, String moduleName, String tenantId) throws DSCException {
 		String fileStoreId = null;
 		try {
-			StorageResponse storageRes = getFileStorageService(files, moduleName, tenantId);
+			StorageResponse storageRes = getFileStorageService(content, fileName, moduleName, tenantId);
 
-			List<FileReq> filesList = storageRes.getFiles();
-			for (FileReq filesId : filesList) {
+			for (FileReq filesId : storageRes.getFiles()) {
 				fileStoreId = filesId.getFileStoreId();
 			}
 		} catch (Exception e) {
-			throw new DSCException(applicationProperties.getDSC_ERR_21());
+			throw new DSCException(applicationProperties.getDSC_ERR_21(), e);
 		}
 		return fileStoreId;
 	}
 
-	public StorageResponse getFileStorageService(final List<MultipartFile> files, String modulename, String tenantId)
-			throws IOException {
+	private StorageResponse getFileStorageService(byte[] content, String fileName, String modulename,
+			String tenantId) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_UTF8_VALUE);
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -1007,19 +946,13 @@ public class DscController {
 		MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
 		map.add("module", modulename);
 		map.add("tenantId", tenantId);
-
-		ByteArrayResource contentsAsResource = null;
-		for (MultipartFile file : files) {
-			contentsAsResource = new ByteArrayResource(file.getBytes()) {
-				@Override
-				public String getFilename() {
-					return file.getOriginalFilename();
-				}
-			};
-		}
-		;
-		map.add("file", contentsAsResource);
-		// map.add("file", contentsAsResource);
+		// filestore needs a filename on the multipart part, which ByteArrayResource lacks by default
+		map.add("file", new ByteArrayResource(content) {
+			@Override
+			public String getFilename() {
+				return fileName;
+			}
+		});
 
 		StringBuilder uri = new StringBuilder(applicationProperties.getEgovFileStoreSerHost())
 				.append(applicationProperties.getEgovFileStoreUploadFile());
@@ -1045,10 +978,9 @@ public class DscController {
 			dsc[0] = true;
 			throw new DSCException(applicationProperties.getDSC_ERR_19(), dsc[0]);
 		}
-		log.debug("authenticatePDF:: " + authenticatePDF);
+		log.debug("[correlationId={}] eMAS authenticatePDF result: {}", correlationId, authenticatePDF);
 
-		if (authenticatePDF != null && !authenticatePDF.isEmpty()
-				&& (authenticatePDF.contains("Success") || authenticatePDF.contains("success"))) {
+		if (isEmasSuccess(authenticatePDF)) {
 			result = true;
 		} else if (authenticatePDF != null && !authenticatePDF.isEmpty()) {
 			dsc[0] = false;
@@ -1057,21 +989,17 @@ public class DscController {
 		return result;
 	}
 
-	private Path fetchAsDigitPath(String fileStoreId, String tenantId, String correlationId) throws DSCException {
-		ResponseEntity<byte[]> responseEntity = null;
-		Path fileDirPath = null;
-		Path path = null;
-		try {
-			responseEntity = fetchFilesFromDigitService(fileStoreId, tenantId);
-//			fileDirPath = Paths.get(fileStoreId);
-			fileDirPath = Paths.get(tempFilesDir+fileStoreId);
-			path = Files.write(fileDirPath, responseEntity.getBody());
-		} catch (Exception e) {
-			log.error("Failed to fetch file from DIGIT for correlationId={}", correlationId, e);
-			throw new DSCException(applicationProperties.getDSC_ERR_12());
+	/**
+	 * eMAS replies are "<status>~<payload>" (or just "<status>"). Only the status
+	 * token is compared, so free text such as "Signature verification unsuccessful"
+	 * is not mistaken for success.
+	 */
+	private static boolean isEmasSuccess(String emasResponse) {
+		if (emasResponse == null || emasResponse.isEmpty()) {
+			return false;
 		}
-		return path;
-
+		String status = emasResponse.split("~", 2)[0].trim();
+		return EMAS_STATUS_SUCCESS.equalsIgnoreCase(status);
 	}
 
 	public ResponseEntity<byte[]> fetchFilesFromDigitService(String fileStoreId, String tenantId) throws Exception {
@@ -1103,7 +1031,7 @@ public class DscController {
 	 */
 	@RequestMapping(value = "/_dataSignDeregister", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<DataSignResponse> dataSignDeregister(@Valid @RequestBody DataSignRequest dataSignRequest) {
+	public ResponseEntity<DataSignResponse> dataSignDeregister(@Validated(DataSignRequest.Deregister.class) @RequestBody DataSignRequest dataSignRequest) {
 		RequestInfo requestInfo = dataSignRequest.getRequestInfo();
 		String correlationId = (requestInfo != null) ? requestInfo.getMsgId() : "N/A";
 		String response = "";
@@ -1112,7 +1040,7 @@ public class DscController {
 		try {
 			
 			response = populateDeregisterSoapCall(dataSignRequest.getRequestInfo().getUserInfo().getId(), dataSignRequest.getChannelId(), correlationId);
-			if (!(response.toLowerCase().contains("success"))) {
+			if (!isEmasSuccess(response)) {
 				emudhraErrorCode = response;
 			}
 
@@ -1139,9 +1067,9 @@ public class DscController {
 		DSAuthenticateWS authenticateWS = new DSAuthenticateWSProxy(applicationProperties.getEmasWsUrl());
 		try {
 			String response = authenticateWS.userExists(userId + "~" + channel);
-			if (response.toLowerCase().contains("success")) {
+			if (isEmasSuccess(response)) {
 				result = authenticateWS.deregister(userId + "~" + channel, "degistration");
-				log.debug("result after deregistration ::::" + result);
+				log.debug("[correlationId={}] eMAS deregister result: {}", correlationId, result);
 			} else {
 				throw new DSCException("Error in deregistration api from Emas" + response);
 			}

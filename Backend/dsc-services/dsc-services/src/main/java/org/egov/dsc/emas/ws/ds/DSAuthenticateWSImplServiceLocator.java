@@ -10,6 +10,8 @@ package org.egov.dsc.emas.ws.ds;
 import javax.xml.rpc.ServiceException;
 
 import org.egov.dsc.config.ApplicationProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DSAuthenticateWSImplServiceLocator extends org.apache.axis.client.Service implements DSAuthenticateWSImplService {
@@ -19,6 +21,7 @@ public class DSAuthenticateWSImplServiceLocator extends org.apache.axis.client.S
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final Logger log = LoggerFactory.getLogger(DSAuthenticateWSImplServiceLocator.class);
 	public ApplicationProperties applicationProperties = new ApplicationProperties();
 	
     public DSAuthenticateWSImplServiceLocator() {
@@ -37,7 +40,7 @@ public class DSAuthenticateWSImplServiceLocator extends org.apache.axis.client.S
     private java.lang.String DSAuthenticateWSImplPort_address = applicationProperties.getEmasWsUrl();
 
     public java.lang.String getDSAuthenticateWSImplPortAddress() {
-	    System.out.println("soap url ::::"+DSAuthenticateWSImplPort_address);
+	    log.debug("eMAS SOAP url: {}", DSAuthenticateWSImplPort_address);
         return DSAuthenticateWSImplPort_address;
     }
 
